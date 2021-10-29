@@ -1,0 +1,11 @@
+name: ${project.artifactId}
+version: ${project.version}
+main: com.mcmiddleearth.mcmecharity.CharityPlugin
+api-version: 1.16
+authors: [ Eriol_Eandur ]
+description: Manages Interation with Tiltify Funraising API
+
+commands:
+  charity:
+    description: Manages charity messages for a player
+    usage: /charity on|off
