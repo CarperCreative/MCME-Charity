@@ -1,15 +1,13 @@
-package com.mcmiddleearth.mcmecharity.tiltify;
+package com.mcmiddleearth.mcmecharity;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.mcmiddleearth.mcmecharity.tiltify.incentives.Reward;
+import com.mcmiddleearth.mcmecharity.incentives.Reward;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 public class TiltifyConnector {
 

@@ -1,23 +1,27 @@
-package com.mcmiddleearth.mcmecharity.tiltify.incentives;
+package com.mcmiddleearth.mcmecharity.incentives;
 
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Objects;
 
-public class Reward implements Incentive {
+public class Reward extends Incentive {
 
     @SerializedName("id") int id;
-    @SerializedName("type") String type;
-    @SerializedName("name") String name;
-    @SerializedName("totalAmountRaised") double totalAmount;
-    @SerializedName("amount") double amount;
     @SerializedName("campaignId") int champaignId;
+    @SerializedName("name") String name;
+    @SerializedName("description") String description;
+    @SerializedName("kind") String kind;
     @SerializedName("active") boolean active;
-    @SerializedName("endsAt") long endsAt;
-    @SerializedName("createdAt") long createdAt;
-    @SerializedName("updatedAt") long updatedAt;
+    //@SerializedName("quantity") double quantity;
+    //@SerializedName("endsAt") long endsAt;
+    //@SerializedName("createdAt") long createdAt;
+    //@SerializedName("updatedAt") long updatedAt;
 
-    @Override
+
+    public int getId() {
+        return id;
+    }
+
     public String getDescription() {
         return name+" "+id+" "+champaignId;
     }
