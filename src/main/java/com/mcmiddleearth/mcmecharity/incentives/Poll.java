@@ -43,6 +43,10 @@ public class Poll {
         return champaignId;
     }
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

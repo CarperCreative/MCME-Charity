@@ -7,7 +7,7 @@ public class EntitiesAction implements Action {
     }
 
     @Override
-    public void execute() {
+    public void execute(String donor, String message, String amount) {
 
     }
 }

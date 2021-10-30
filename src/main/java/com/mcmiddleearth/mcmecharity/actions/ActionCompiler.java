@@ -13,7 +13,9 @@ public class ActionCompiler {
             String[] actionData = actionString.split(" ");
             switch (actionData[0]) {
                 case "script":
-                    result = new ScriptAction(Arrays.copyOfRange(actionData, 1, actionData.length));
+                    if(actionData.length > 2) {
+                        result = new ScriptAction(actionData[1], actionData[2], Arrays.copyOfRange(actionData, 3, actionData.length));
+                    }
                     break;
                 case "entity":
                     result = new EntitiesAction(Arrays.copyOfRange(actionData, 1, actionData.length));

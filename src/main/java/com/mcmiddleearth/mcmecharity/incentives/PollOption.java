@@ -6,8 +6,6 @@ public class PollOption extends Incentive {
 
     @SerializedName("id")
     int id;
-    @SerializedName("campaignId")
-    int champaignId;
     @SerializedName("name")
     String name;
     @SerializedName("active")
@@ -21,5 +19,9 @@ public class PollOption extends Incentive {
 
     public double getTotalAmountRaised() {
         return totalAmountRaised;
+    }
+
+    public String getName() {
+        return name;
     }
 }

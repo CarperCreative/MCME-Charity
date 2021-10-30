@@ -70,7 +70,7 @@ public class RewardManager {
         try {
             donations.stream().filter(donation -> !donation.isHandled()).forEach(donation -> {
                 if (donation.getReward() != null && donation.getReward().getAction() != null) {
-                    donation.getReward().getAction().execute();
+                    donation.getReward().getAction().execute(donation.getName(),donation.getComment(),""+donation.getAmount());
                     donation.setHandled(true);
                     CharityPlugin.setStorage(KEY_DONATION, ""+donation.getId(), true, false);
                 }

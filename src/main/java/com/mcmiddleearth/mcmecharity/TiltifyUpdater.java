@@ -80,7 +80,6 @@ public class TiltifyUpdater extends BukkitRunnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     private String fetch(String key) throws IOException {

@@ -27,7 +27,9 @@ public class ChallengeManager {
             challenges.stream().filter(challenge -> !challenge.isHandled() && challenge.getTotalAmountRaised() >= challenge.getAmount())
                     .forEach(challenge -> {
                         if(challenge.getAction()!=null) {
-                            challenge.getAction().execute();
+                            challenge.getAction().execute(null,
+                                    challenge.getName() + "Target reached! " +challenge.getTotalAmountRaised()+"$ raised!",
+                                    challenge.getTotalAmountRaised()+"");
                         }
                         challenge.setHandled(true);
                         CharityPlugin.setStorage(KEY_CHALLENGE, challenge.getChampaignId()+"_"+challenge.getId(), true, false);

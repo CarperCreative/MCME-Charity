@@ -44,6 +44,10 @@ public class Challenge extends Incentive {
         return totalAmountRaised;
     }
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -43,6 +43,18 @@ public class Donation {
         return id;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

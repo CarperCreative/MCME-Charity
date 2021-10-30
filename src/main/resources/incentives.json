@@ -1,0 +1,84 @@
+{
+  "name": "charity_stream_incentives",
+  "events": [
+    {
+      "type": "external",
+      "name": "summon_dog",
+      "action":
+      {
+        "type": "random_spawn",
+        "quantity": "1",
+        "select": "@a[name=Eriol_Eandur]",
+        "radius": "5..7",
+        "choices": [
+          {
+            "spawn_data": {
+              "type": "dog"
+            }
+          }
+        ],
+        "goal": {
+          "goal_type": "follow_entity"
+        },
+        "goal_target": "@a[name=Eriol_Eandur]",
+        "lifespan": 2000
+      }
+    },
+    {
+      "type": "external",
+      "name": "elvish_persona",
+      "actions": [
+        {
+          "type": "add_potion_effect",
+          "selector": "@a[name=Eriol_Eandur]",
+          "potion_effect": {
+            "duration": 300,
+            "type": "speed",
+            "amplifier": 2,
+            "particles": true,
+            "ambient": true,
+            "icon": false
+          }
+        },
+        {
+          "type": "add_potion_effect",
+          "selector": "@a[name=Eriol_Eandur]",
+          "potion_effect": {
+            "duration": 300,
+            "type": "regeneration",
+            "amplifier": 1,
+            "particles": true,
+            "ambient": true,
+            "icon": false
+          }
+        }
+      ]
+    },
+    {
+      "type": "external",
+      "name": "give_weapon",
+      "action":
+      {
+        "type": "give_item",
+        "slot": "hand",
+        "item": {
+          "material": "diamond_sword",
+          "lore":[
+            "Battle Axe",
+            "of Thor, King under the Mountain"
+          ],
+          "enchantments": [
+            {
+              "type": "sharpness",
+              "level": 2
+            },{
+              "type": "sweeping_edge",
+              "level": 3
+            }
+          ]
+        },
+        "duration": 4000
+      }
+    }
+  ]
+}

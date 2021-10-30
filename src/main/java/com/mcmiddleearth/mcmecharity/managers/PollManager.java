@@ -37,7 +37,13 @@ public class PollManager {
                       }
                   }
                   if(top != null && top.getAction() != null) {
-                      top.getAction().execute();
+                      StringBuilder message = new StringBuilder(poll.getName());
+                      double amount=0;
+                      for(int i = 0; i < poll.getOptions().length; i++) {
+                          message.append(" - ").append(poll.getOptions()[i].getName()).append(": ").append(poll.getOptions()[i].getTotalAmountRaised());
+                          amount = amount + poll.getOptions()[i].getTotalAmountRaised();
+                      }
+                      top.getAction().execute(null,message.toString(),amount+"");
                   }
               });
         CharityPlugin.saveStorage();
