@@ -8,11 +8,12 @@ import com.mcmiddleearth.mcmecharity.CharityPlugin;
 import com.mcmiddleearth.mcmecharity.Donation;
 import com.mcmiddleearth.mcmecharity.actions.Action;
 import com.mcmiddleearth.mcmecharity.actions.ActionCompiler;
-import com.mcmiddleearth.mcmecharity.actions.EntitiesAction;
-import com.mcmiddleearth.mcmecharity.actions.ScriptAction;
 import com.mcmiddleearth.mcmecharity.incentives.Reward;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class RewardManager {
 
@@ -22,7 +23,8 @@ public class RewardManager {
 
     private final Set<Donation> donations = new HashSet<>();
 
-    private static final String KEY_REWARD = "reward";
+    private static final String KEY_REWARD = "reward",
+                                KEY_DONATION = "donation";
 
     /*public void addPlayer(Player player) {
         registeredPlayers.add(player);
@@ -47,7 +49,7 @@ public class RewardManager {
         registeredRewards.add(reward);
     }*/
 
-    public void updateRewards(String rewardData) {
+    public synchronized void updateRewards(String rewardData) {
         registeredRewards.clear();
         Gson gson = new Gson();
         JsonElement rewardDataJson =  JsonParser.parseString(rewardData);
@@ -65,12 +67,17 @@ public class RewardManager {
     }
 
     public synchronized void handleRewards() {
-        donations.stream().filter(donation -> !donation.isHandled()).forEach(donation -> {
-            if(donation.getReward()!=null && donation.getReward().getAction()!=null) {
-                donation.getReward().getAction().execute();
-                donation.setHandled(true);
-            }
-        });
+        try {
+            donations.stream().filter(donation -> !donation.isHandled()).forEach(donation -> {
+                if (donation.getReward() != null && donation.getReward().getAction() != null) {
+                    donation.getReward().getAction().execute();
+                    donation.setHandled(true);
+                    CharityPlugin.setStorage(KEY_DONATION, ""+donation.getId(), true, false);
+                }
+            });
+        } finally {
+            CharityPlugin.saveStorage();
+        }
     }
 
     public synchronized void updateDonations(String donationData) {
@@ -80,11 +87,14 @@ public class RewardManager {
         Set<Donation> recentDonations = new HashSet<>();
         for(int i = 0; i< donationListJson.size(); i++) {
             Donation donation = gson.fromJson(donationListJson.get(i), Donation.class);
-            int rewardId = donation.getRewardId();
-            Reward reward = registeredRewards.get(rewardId);
-            if(reward!=null) {
-                donation.setReward(reward);
-                recentDonations.add(donation);
+            boolean isHandled = CharityPlugin.getStorage(KEY_DONATION,""+donation.getId());
+            if(!isHandled) {
+                int rewardId = donation.getRewardId();
+                Reward reward = registeredRewards.get(rewardId);
+                if(reward!=null) {
+                    donation.setReward(reward);
+                    recentDonations.add(donation);
+                }
             }
         }
         Set<Donation> removal = new HashSet<>();

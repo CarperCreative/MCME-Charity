@@ -14,8 +14,34 @@ public class Challenge extends Incentive {
     @SerializedName("active") boolean active;
     @SerializedName("endsAt") long endsAt;
 
+    private boolean handled;
+
     public int getId() {
         return id;
+    }
+
+    public boolean isHandled() {
+        return handled;
+    }
+
+    public void setHandled(boolean handled) {
+        this.handled = handled;
+    }
+
+    public long getEndsAt() {
+        return endsAt;
+    }
+
+    public int getChampaignId() {
+        return champaignId;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public double getTotalAmountRaised() {
+        return totalAmountRaised;
     }
 
     @Override

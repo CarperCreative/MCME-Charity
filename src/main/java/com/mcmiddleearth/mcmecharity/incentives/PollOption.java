@@ -18,4 +18,8 @@ public class PollOption extends Incentive {
     public int getId() {
         return id;
     }
+
+    public double getTotalAmountRaised() {
+        return totalAmountRaised;
+    }
 }

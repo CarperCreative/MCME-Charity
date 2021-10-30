@@ -4,4 +4,13 @@ tiltify:
 reward:
   12: "script arg1 arg2 arg3"
 poll:
+  1:
+    period: 100000
+    13: "entities arg1 arg2 arg3"
+    14: "entities arg1 arg2 arg3"
+  115:
+    period: 200000
+    45: "script arg1 arg2 arg3"
+    34: "script arg1 arg3 arg3"
 challenge:
+  32: "script arg1 arg2 arg3"

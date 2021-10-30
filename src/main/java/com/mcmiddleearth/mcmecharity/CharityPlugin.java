@@ -7,12 +7,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 
 public final class CharityPlugin extends JavaPlugin implements CommandExecutor {
@@ -22,11 +26,19 @@ public final class CharityPlugin extends JavaPlugin implements CommandExecutor {
 
     private static CharityPlugin instance;
 
+    private FileConfiguration storage;
+    private static String storageFilename = "storage.yml";
+
     @Override
     public void onEnable() {
         //tiltifyConnector = new TiltifyConnector();
         //private TiltifyConnector tiltifyConnector;
         saveDefaultConfig();
+        try {
+            storage.load(new File(getDataFolder(),storageFilename));
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
 
         RewardManager rewardManager = new RewardManager();
         PollManager pollManager = new PollManager();
@@ -64,9 +76,38 @@ public final class CharityPlugin extends JavaPlugin implements CommandExecutor {
         return true;
     }
 
-    public static String getConfigString(String key) {
+    public synchronized static String getConfigString(String key) {
         return instance.getConfig().getString(key);
     }
 
+    public synchronized static boolean getStorage(String key, String id) {
+        return instance.storage.getBoolean(key+"."+id,false);
+    }
+
+    public synchronized static void setStorage(String key, String id, boolean value, boolean saveToFile) {
+        instance.storage.set(key + "." + id, value);
+        if (saveToFile) {
+            saveStorage();
+        }
+    }
+
+    public synchronized static long getStorageLong(String key, String id) {
+        return instance.storage.getLong(key+"."+id,0L);
+    }
+
+    public synchronized static void setStorageLong(String key, String id, long value, boolean saveToFile) {
+        instance.storage.set(key + "." + id, value);
+        if (saveToFile) {
+            saveStorage();
+        }
+    }
+
+    public synchronized static void saveStorage() {
+        try {
+            instance.storage.save(new File(instance.getDataFolder(),storageFilename));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

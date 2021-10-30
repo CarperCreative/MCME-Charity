@@ -12,8 +12,35 @@ public class Poll {
     @SerializedName("active") boolean active;
     @SerializedName("options") PollOption[] options;
 
+    private long handled;
+    private long period = 300000; //5 minutes
+
     public PollOption[] getOptions() {
         return options;
+    }
+
+    public long getHandled() {
+        return handled;
+    }
+
+    public void setHandled(long handled) {
+        this.handled = handled;
+    }
+
+    public long getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(long period) {
+        this.period = period;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getChampaignId() {
+        return champaignId;
     }
 
     @Override

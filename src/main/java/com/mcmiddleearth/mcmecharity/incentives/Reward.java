@@ -22,6 +22,10 @@ public class Reward extends Incentive {
         return id;
     }
 
+    public int getChampaignId() {
+        return champaignId;
+    }
+
     public String getDescription() {
         return name+" "+id+" "+champaignId;
     }

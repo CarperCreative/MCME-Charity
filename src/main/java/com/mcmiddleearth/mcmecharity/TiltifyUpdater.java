@@ -41,7 +41,7 @@ public class TiltifyUpdater extends BukkitRunnable {
 
                 HttpGet request = new HttpGet("https://tiltify.com/api/v3/campaigns/103853/rewards");
 
-                request.addHeader("Authorization", "Bearer 3aa0b420fb02cfe5cca324576a238885279398b0bd19878de97b74edca6ad520");
+                request.addHeader("Authorization", "Bearer xxx");
                 response = client.execute(request, httpResponse -> {
                     StringBuilder builder = new StringBuilder();
                     try(BufferedReader reader = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()))) {
@@ -58,7 +58,7 @@ public class TiltifyUpdater extends BukkitRunnable {
             }*/
         /*try {
             HttpsURLConnection connection = (HttpsURLConnection) new URL("https://tiltify.com/api/v3/campaigns/103853/rewards").openConnection();
-            connection.setRequestProperty("Authorization", "Bearer 3aa0b420fb02cfe5cca324576a238885279398b0bd19878de97b74edca6ad520");
+            connection.setRequestProperty("Authorization", "Bearer xxx");
             connection.getRequestProperties().forEach((key,value) -> Logger.getGlobal().info(key+" "+value));
             connection.setConnectTimeout(10000); //10 seconds
             connection.connect();
