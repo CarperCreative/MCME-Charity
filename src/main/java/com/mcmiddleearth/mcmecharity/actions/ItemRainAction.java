@@ -11,6 +11,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 public class ItemRainAction implements Action {
 
@@ -23,23 +24,27 @@ public class ItemRainAction implements Action {
     @Override
     public void execute(String donor, String message, String amount) {
         Player streamer = CharityPlugin.getStreamer();
+//Logger.getGlobal().info("Rain "+item.getType());
         List<Item> items = new ArrayList<>();
         if(streamer!=null) {
-            Location location = streamer.getLocation().add(0,10,0);
             new BukkitRunnable() {
                 int counter = 0;
                 final Random random = new Random();
                 @Override
                 public void run() {
-                    if(counter<40) {
-                        for(int i = -5; i<5; i++) {
-                            for(int j = -5; j<5; j++) {
-                                if(random.nextDouble()<0.5) {
-                                    items.add(location.getWorld().dropItemNaturally(location.clone().add(i,0,j),item));
+//Logger.getGlobal().info("Step "+counter);
+                    if(counter<180) {
+                        Location location = streamer.getLocation().add(0,5,0);
+                        for(int i = -10; i<10; i++) {
+                            for(int j = -10; j<10; j++) {
+                                for(int k = 0; k<4; k+=2) {
+                                    if (random.nextDouble() < 0.4) {
+                                        items.add(location.getWorld().dropItemNaturally(location.clone().add(i, k, j), item));
+                                    }
                                 }
                             }
                         }
-                    } else if(counter < 80) {
+                    } else if(counter < 380) {
                         if(items.size()>0) {
                             for (int i = 0; i < items.size() * 0.2; i++) {
                                 int index = random.nextInt(items.size());
@@ -54,7 +59,7 @@ public class ItemRainAction implements Action {
                     }
                     counter++;
                 }
-            }.runTaskTimer(CharityPlugin.getInstance(),0,5);
+            }.runTaskTimer(CharityPlugin.getInstance(),0,2);
         }
     }
 }

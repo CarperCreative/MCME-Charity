@@ -69,10 +69,10 @@ public class RewardManager {
     public synchronized void handleRewards() {
         if(CharityPlugin.getStreamer()!=null) {
             try {
-Logger.getGlobal().info("Handle rewards: " + donations.size());
+//Logger.getGlobal().info("Handle rewards: " + donations.size());
                 donations.stream().filter(donation -> !donation.isHandled()).forEach(donation -> {
                     if (donation.getReward() != null && donation.getReward().getAction() != null) {
-Logger.getGlobal().info("Donation reward: " + donation.getName());
+                        Logger.getLogger(RewardManager.class.getSimpleName()).info("Donation reward: " + donation.getName());
                         donation.getReward().getAction().execute(donation.getName(), donation.getComment(), "" + donation.getAmount());
                         donation.setHandled(true);
                         CharityPlugin.setStorage(KEY_DONATION, "" + donation.getId(), true, false);

@@ -1,6 +1,7 @@
 package com.mcmiddleearth.mcmecharity;
 
 import com.mcmiddleearth.mcmecharity.command.CharityCommand;
+import com.mcmiddleearth.mcmecharity.listener.OneRingEffect;
 import com.mcmiddleearth.mcmecharity.listener.PlayerListener;
 import com.mcmiddleearth.mcmecharity.managers.ChallengeManager;
 import com.mcmiddleearth.mcmecharity.managers.PollManager;
@@ -57,9 +58,10 @@ public final class CharityPlugin extends JavaPlugin {
         minecraftUpdater = new MinecraftUpdater(rewardManager, pollManager, challengeManager).runTaskTimer(this,210,100);
         tiltifyUpdater = new TiltifyUpdater(rewardManager, pollManager, challengeManager).runTaskTimerAsynchronously(this,200,100);
 
-        Bukkit.getPluginManager().registerEvents(new PlayerListener(),this);
-
         instance = this;
+
+        Bukkit.getPluginManager().registerEvents(new PlayerListener(),this);
+        Bukkit.getPluginManager().registerEvents(new OneRingEffect(),this);
     }
 
     @Override
