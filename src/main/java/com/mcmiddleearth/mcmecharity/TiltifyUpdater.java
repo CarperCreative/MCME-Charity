@@ -1,5 +1,7 @@
 package com.mcmiddleearth.mcmecharity;
 
+import com.google.gson.*;
+import com.google.gson.stream.JsonReader;
 import com.mcmiddleearth.mcmecharity.managers.ChallengeManager;
 import com.mcmiddleearth.mcmecharity.managers.PollManager;
 import com.mcmiddleearth.mcmecharity.managers.RewardManager;
@@ -8,9 +10,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import javax.net.ssl.SSLException;
+import java.io.*;
 
 public class TiltifyUpdater extends BukkitRunnable {
 
@@ -18,6 +19,10 @@ public class TiltifyUpdater extends BukkitRunnable {
     private final RewardManager rewardManager;
     private final PollManager pollManager;
     private final ChallengeManager challengeManager;
+
+    private final Gson gson;
+    private final JsonParser jsonParser;
+    private static boolean testing = true;
 
     private static final String apiUrl = "https://tiltify.com/api/v3/";
     private static final String
@@ -30,6 +35,8 @@ public class TiltifyUpdater extends BukkitRunnable {
         this.rewardManager = rewardManager;
         this.pollManager = pollManager;
         this.challengeManager = challengeManager;
+        gson = new GsonBuilder().setPrettyPrinting().create();
+        jsonParser = new JsonParser();
     }
 
     @Override
@@ -83,27 +90,42 @@ public class TiltifyUpdater extends BukkitRunnable {
     }
 
     private String fetch(String key) throws IOException {
-        String response = "";
-        HttpClientBuilder clientBuilder = HttpClientBuilder.create().disableCookieManagement();
-        try (CloseableHttpClient client = clientBuilder.build()) {
+        String response = "{}";
+        if(!testing) {
+            HttpClientBuilder clientBuilder = HttpClientBuilder.create().disableCookieManagement();
+            try (CloseableHttpClient client = clientBuilder.build()) {
 
-            HttpGet request = new HttpGet(apiUrl+"/campaigns/"+CharityPlugin.getConfigString(KEY_CAMPAIGN_ID)+"/"+key);
+                HttpGet request = new HttpGet(apiUrl + "/campaigns/" + CharityPlugin.getConfigString(KEY_CAMPAIGN_ID) + "/" + key);
 
-            request.addHeader("Authorization", "Bearer "+CharityPlugin.getConfigString(KEY_BEARER));
-            response = client.execute(request, httpResponse -> {
-                StringBuilder builder = new StringBuilder();
-                try(BufferedReader reader = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null)
-                    {
-                        builder.append(line).append("\n");
+                request.addHeader("Authorization", "Bearer " + CharityPlugin.getConfigString(KEY_BEARER));
+                response = client.execute(request, httpResponse -> {
+                    StringBuilder builder = new StringBuilder();
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            builder.append(line).append("\n");
+                        }
+
                     }
-
+                    return builder.toString();
+                });
+                //System.out.println(response);
+                JsonElement element = jsonParser.parse(response);
+                try (FileWriter fw = new FileWriter(new File(CharityPlugin.getInstance().getDataFolder(), key + ".json"))) {
+                    fw.write(gson.toJson(element));
+                    fw.flush();
                 }
-                return builder.toString();
-            });
-            //System.out.println(response);
+            } catch(SSLException ignore) {}
+        } else {
+            try(FileReader fr = new FileReader(new File(CharityPlugin.getInstance().getDataFolder(), key+".json"))) {
+                JsonElement element = jsonParser.parse(fr);
+                response = element.toString();
+            } catch(JsonParseException | IOException ignore) {}
         }
         return response;
+    }
+
+    public static void setTesting(boolean testing) {
+        TiltifyUpdater.testing = testing;
     }
 }

@@ -1,9 +1,6 @@
 package com.mcmiddleearth.mcmecharity.managers;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.mcmiddleearth.mcmecharity.CharityPlugin;
 import com.mcmiddleearth.mcmecharity.Donation;
 import com.mcmiddleearth.mcmecharity.actions.Action;
@@ -14,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 public class RewardManager {
 
@@ -26,7 +24,9 @@ public class RewardManager {
     private static final String KEY_REWARD = "reward",
                                 KEY_DONATION = "donation";
 
-    /*public void addPlayer(Player player) {
+    private final JsonParser jsonParser = new JsonParser();
+
+   /*public void addPlayer(Player player) {
         registeredPlayers.add(player);
     }
 
@@ -52,7 +52,7 @@ public class RewardManager {
     public synchronized void updateRewards(String rewardData) {
         registeredRewards.clear();
         Gson gson = new Gson();
-        JsonElement rewardDataJson =  JsonParser.parseString(rewardData);
+        JsonElement rewardDataJson =  jsonParser.parse(rewardData);
         JsonArray rewardListJson = rewardDataJson.getAsJsonObject().get("data").getAsJsonArray();
 //Logger.getGlobal().info("size: "+rewardListJson.size());
         for(int i = 0; i< rewardListJson.size(); i++) {
@@ -67,40 +67,46 @@ public class RewardManager {
     }
 
     public synchronized void handleRewards() {
-        try {
-            donations.stream().filter(donation -> !donation.isHandled()).forEach(donation -> {
-                if (donation.getReward() != null && donation.getReward().getAction() != null) {
-                    donation.getReward().getAction().execute(donation.getName(),donation.getComment(),""+donation.getAmount());
-                    donation.setHandled(true);
-                    CharityPlugin.setStorage(KEY_DONATION, ""+donation.getId(), true, false);
-                }
-            });
-        } finally {
-            CharityPlugin.saveStorage();
+        if(CharityPlugin.getStreamer()!=null) {
+            try {
+Logger.getGlobal().info("Handle rewards: " + donations.size());
+                donations.stream().filter(donation -> !donation.isHandled()).forEach(donation -> {
+                    if (donation.getReward() != null && donation.getReward().getAction() != null) {
+Logger.getGlobal().info("Donation reward: " + donation.getName());
+                        donation.getReward().getAction().execute(donation.getName(), donation.getComment(), "" + donation.getAmount());
+                        donation.setHandled(true);
+                        CharityPlugin.setStorage(KEY_DONATION, "" + donation.getId(), true, false);
+                    }
+                });
+            } finally {
+                CharityPlugin.saveStorage();
+            }
         }
     }
 
     public synchronized void updateDonations(String donationData) {
         Gson gson = new Gson();
-        JsonElement donationDataJson =  JsonParser.parseString(donationData);
-        JsonArray donationListJson = donationDataJson.getAsJsonObject().get("data").getAsJsonArray();
-        Set<Donation> recentDonations = new HashSet<>();
-        for(int i = 0; i< donationListJson.size(); i++) {
-            Donation donation = gson.fromJson(donationListJson.get(i), Donation.class);
-            boolean isHandled = CharityPlugin.getStorage(KEY_DONATION,""+donation.getId());
-            if(!isHandled) {
-                int rewardId = donation.getRewardId();
-                Reward reward = registeredRewards.get(rewardId);
-                if(reward!=null) {
-                    donation.setReward(reward);
-                    recentDonations.add(donation);
+        JsonElement donationDataJson = jsonParser.parse(donationData);
+        if(donationDataJson instanceof JsonObject && donationDataJson.getAsJsonObject().has("data")) {
+            JsonArray donationListJson = donationDataJson.getAsJsonObject().get("data").getAsJsonArray();
+            Set<Donation> recentDonations = new HashSet<>();
+            for (int i = 0; i < donationListJson.size(); i++) {
+                Donation donation = gson.fromJson(donationListJson.get(i), Donation.class);
+                boolean isHandled = CharityPlugin.getStorage(KEY_DONATION, "" + donation.getId());
+                if (!isHandled) {
+                    int rewardId = donation.getRewardId();
+                    Reward reward = registeredRewards.get(rewardId);
+                    if (reward != null) {
+                        donation.setReward(reward);
+                        recentDonations.add(donation);
+                    }
                 }
             }
+            Set<Donation> removal = new HashSet<>();
+            donations.stream().filter(donation -> donation.isHandled() && !recentDonations.contains(donation))
+                    .forEach(removal::add);
+            donations.removeAll(removal);
+            donations.addAll(recentDonations);
         }
-        Set<Donation> removal = new HashSet<>();
-        donations.stream().filter(donation -> donation.isHandled() && !recentDonations.contains(donation))
-                 .forEach(removal::add);
-        donations.removeAll(removal);
-        donations.addAll(recentDonations);
     }
 }

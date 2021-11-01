@@ -1,6 +1,7 @@
 package com.mcmiddleearth.mcmecharity.actions;
 
 import com.mcmiddleearth.mcmecharity.CharityPlugin;
+import org.bukkit.Material;
 
 import java.util.Arrays;
 
@@ -19,6 +20,25 @@ public class ActionCompiler {
                     break;
                 case "entity":
                     result = new EntitiesAction(Arrays.copyOfRange(actionData, 1, actionData.length));
+                    break;
+                case "bed":
+                    result = new BedAction();
+                    break;
+                case "item_rain":
+                    if(actionData.length > 1) {
+                        try {
+                            result = new ItemRainAction(Material.valueOf(actionData[1].toLowerCase()));
+                        } catch (IllegalArgumentException ignore) {
+                        }
+                    }
+                    break;
+                case "replace_inventory":
+                    if(actionData.length > 1) {
+                        try {
+                            result = new InventoryReplaceAction(Material.valueOf(actionData[1].toLowerCase()));
+                        } catch (IllegalArgumentException ignore) {
+                        }
+                    }
                     break;
             }
         }

@@ -13,7 +13,7 @@
         "choices": [
           {
             "spawn_data": {
-              "type": "dog"
+              "type": "wolf"
             }
           }
         ],
@@ -26,11 +26,66 @@
     },
     {
       "type": "external",
+      "name": "random_potion_effect",
+      "action":
+      {
+        "type": "add_potion_effect",
+        "select": "@a[name=Eriol_Eandur]",
+        "choices":[
+          {
+            "weight": 10,
+            "potion_effect": {
+              "type": "absorption",
+              "duration": 300,
+              "amplifier": 1,
+              "particles": true,
+              "ambient": true,
+              "icon": false
+            }
+          },
+          {
+            "weight": 10,
+            "potion_effect": {
+              "type": "absorption",
+              "duration": 300,
+              "amplifier": 1,
+              "particles": true,
+              "ambient": true,
+              "icon": false
+            }
+          },
+          {
+            "weight": 10,
+            "potion_effect": {
+              "type": "regeneration",
+              "duration": 300,
+              "amplifier": 1,
+              "particles": true,
+              "ambient": true,
+              "icon": false
+            }
+          },
+          {
+            "weight": 10,
+            "potion_effect": {
+              "type": "speed",
+              "duration": 300,
+              "amplifier": 1,
+              "particles": true,
+              "ambient": true,
+              "icon": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "external",
       "name": "elvish_persona",
       "actions": [
         {
           "type": "add_potion_effect",
-          "selector": "@a[name=Eriol_Eandur]",
+          "select": "@a[name=Eriol_Eandur]",
           "potion_effect": {
             "duration": 300,
             "type": "speed",
@@ -42,7 +97,7 @@
         },
         {
           "type": "add_potion_effect",
-          "selector": "@a[name=Eriol_Eandur]",
+          "select": "@a[name=Eriol_Eandur]",
           "potion_effect": {
             "duration": 300,
             "type": "regeneration",
@@ -56,13 +111,64 @@
     },
     {
       "type": "external",
+      "name": "give_random_item",
+      "action": {
+        "type": "give_item",
+        "select": "@a[name=Eriol_Eandur]",
+        "slot": "hand",
+        "choices": [
+          {
+            "weight": 10,
+            "items": [
+              {
+                "material": "bread",
+                "quantity": 2
+              },
+              "stick"
+            ]
+          },
+          {
+            "weight": 20,
+            "items": [
+              {
+                "material": "bow",
+                "quantity": 1,
+                "damage": 65
+              },
+              {
+                "material": "arrow",
+                "quantity": 23
+              }
+            ]
+          }
+        ],
+        "duration": 4000
+      }
+    },
+    {
+      "type": "external",
+      "name": "give_lembas_bread",
+      "action":
+      {
+        "type": "give_item",
+        "select": "@a[name=Eriol_Eandur]",
+        "item": {
+          "material": "cookie",
+          "quantity": 3
+        }
+      }
+    },
+    {
+      "type": "external",
       "name": "give_weapon",
       "action":
       {
         "type": "give_item",
+        "select": "@a[name=Eriol_Eandur]",
         "slot": "hand",
         "item": {
           "material": "diamond_sword",
+          "name": "Rigazarak",
           "lore":[
             "Battle Axe",
             "of Thor, King under the Mountain"
@@ -75,9 +181,148 @@
               "type": "sweeping_edge",
               "level": 3
             }
+          ],
+          "attribute_modifiers": [
+            {
+              "attribute": "attack_knockback",
+              "name": "Great Knockback",
+              "operation": "add_number",
+              "amount": 2,
+              "slot": "hand"
+            }
           ]
         },
         "duration": 4000
+      }
+    },
+    {
+      "type": "external",
+      "name": "loot_box",
+      "action":
+      {
+        "type": "give_chest",
+        "select": "@a[name=Eriol_Eandur]",
+        "items": [
+          {
+            "material": "diamond_sword",
+            "damage": 146
+          },
+          "cookie"
+        ],
+        "duration": 600
+      }
+    },
+    {
+      "type": "external",
+      "name": "summon_spider",
+      "action":
+      {
+        "type": "random_spawn",
+        "quantity": "1",
+        "select": "@a[name=Eriol_Eandur]",
+        "radius": "5..7",
+        "choices": [
+          {
+            "spawn_data": {
+              "type": "spider"
+            }
+          }
+        ],
+        "goal": {
+          "goal_type": "follow_entity"
+        },
+        "goal_target": "@a[name=Eriol_Eandur]",
+        "lifespan": 2000
+      }
+    },
+    {
+      "type": "external",
+      "name": "summon_orc",
+      "action":
+      {
+        "type": "random_spawn",
+        "quantity": "1",
+        "select": "@a[name=Eriol_Eandur]",
+        "radius": "5..7",
+        "choices": [
+          {
+            "spawn_data": "uruk_head"
+          }
+        ],
+        "goal": {
+          "goal_type": "follow_entity"
+        },
+        "goal_target": "@a[name=Eriol_Eandur]",
+        "lifespan": 2000
+      }
+    },
+    {
+      "type": "external",
+      "name": "summon_warg",
+      "action":
+      {
+        "type": "random_spawn",
+        "quantity": "1",
+        "select": "@a[name=Eriol_Eandur]",
+        "radius": "10..13",
+        "choices": [
+          {
+            "spawn_data": {
+              "type": "pig"
+            }
+          }
+        ],
+        "goal": {
+          "goal_type": "follow_entity"
+        },
+        "goal_target": "@a[name=Eriol_Eandur]",
+        "lifespan": 2000
+      }
+    },
+    {
+      "type": "external",
+      "name": "summon_troll",
+      "action":
+      {
+        "type": "random_spawn",
+        "quantity": "1",
+        "select": "@a[name=Eriol_Eandur]",
+        "radius": "1..1",
+        "choices": [
+          {
+            "spawn_data": {
+              "type": "iron_golem"
+            }
+          }
+        ],
+        "goal": {
+          "goal_type": "follow_entity"
+        },
+        "goal_target": "@a[name=Eriol_Eandur]",
+        "lifespan": 2000
+      }
+    },
+    {
+      "type": "external",
+      "name": "summon_dunlendings",
+      "action":
+      {
+        "type": "random_spawn",
+        "quantity": "1",
+        "select": "@a[name=Eriol_Eandur]",
+        "radius": "5..7",
+        "choices": [
+          {
+            "spawn_data": {
+              "type": "villager"
+            }
+          }
+        ],
+        "goal": {
+          "goal_type": "follow_entity"
+        },
+        "goal_target": "@a[name=Eriol_Eandur]",
+        "lifespan": 2000
       }
     }
   ]

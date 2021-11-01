@@ -1,5 +1,7 @@
 package com.mcmiddleearth.mcmecharity;
 
+import com.mcmiddleearth.mcmecharity.command.CharityCommand;
+import com.mcmiddleearth.mcmecharity.listener.PlayerListener;
 import com.mcmiddleearth.mcmecharity.managers.ChallengeManager;
 import com.mcmiddleearth.mcmecharity.managers.PollManager;
 import com.mcmiddleearth.mcmecharity.managers.RewardManager;
@@ -9,17 +11,18 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.logging.Logger;
 
-public final class CharityPlugin extends JavaPlugin implements CommandExecutor {
+public final class CharityPlugin extends JavaPlugin {
 
     private BukkitTask minecraftUpdater;
     private BukkitTask tiltifyUpdater;
@@ -27,7 +30,7 @@ public final class CharityPlugin extends JavaPlugin implements CommandExecutor {
     private static CharityPlugin instance;
 
     private FileConfiguration storage;
-    private static String storageFilename = "storage.yml";
+    private static final String storageFilename = "storage.yml";
 
     @Override
     public void onEnable() {
@@ -35,7 +38,12 @@ public final class CharityPlugin extends JavaPlugin implements CommandExecutor {
         //private TiltifyConnector tiltifyConnector;
         saveDefaultConfig();
         try {
-            storage.load(new File(getDataFolder(),storageFilename));
+            storage = new YamlConfiguration();
+            File storageFile = new File(getDataFolder(),storageFilename);
+            if(!storageFile.exists())
+                if(storageFile.createNewFile())
+                    getLogger().severe("Can't create storage file!");
+            storage.load(storageFile);
         } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
@@ -44,10 +52,12 @@ public final class CharityPlugin extends JavaPlugin implements CommandExecutor {
         PollManager pollManager = new PollManager();
         ChallengeManager challengeManager = new ChallengeManager();
 
-        Objects.requireNonNull(Bukkit.getServer().getPluginCommand("charity")).setExecutor(this);
+        Objects.requireNonNull(Bukkit.getServer().getPluginCommand("charity")).setExecutor(new CharityCommand());
 
-        minecraftUpdater = new MinecraftUpdater(rewardManager, pollManager, challengeManager).runTaskTimer(this,410,100);
-        tiltifyUpdater = new TiltifyUpdater(rewardManager, pollManager, challengeManager).runTaskTimerAsynchronously(this,400,400);
+        minecraftUpdater = new MinecraftUpdater(rewardManager, pollManager, challengeManager).runTaskTimer(this,210,100);
+        tiltifyUpdater = new TiltifyUpdater(rewardManager, pollManager, challengeManager).runTaskTimerAsynchronously(this,200,100);
+
+        Bukkit.getPluginManager().registerEvents(new PlayerListener(),this);
 
         instance = this;
     }
@@ -56,24 +66,6 @@ public final class CharityPlugin extends JavaPlugin implements CommandExecutor {
     public void onDisable() {
         minecraftUpdater.cancel();
         tiltifyUpdater.cancel();
-    }
-
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        /*if(sender instanceof Player) {
-            if (args.length > 0 && args[0].equalsIgnoreCase("on")) {
-                rewardManager.addPlayer((Player) sender);
-                sender.sendMessage("You'll get charity messages now.");
-            } else if (args.length > 0 && args[0].equalsIgnoreCase("off")) {
-                rewardManager.removePlayer((Player) sender);
-                sender.sendMessage("You'll no longer get any charity messages.");
-            } else {
-                sender.sendMessage("Invalid or missing argument.");
-            }
-        } else {
-            sender.sendMessage("Player only command.");
-        }*/
-        return true;
     }
 
     public synchronized static String getConfigString(String key) {
@@ -110,4 +102,16 @@ public final class CharityPlugin extends JavaPlugin implements CommandExecutor {
         }
     }
 
+    public static Player getStreamer() {
+        String name = getConfigString("streamer");
+        if(name==null) {
+            return null;
+        } else {
+            return Bukkit.getPlayer(name);
+        }
+    }
+
+    public static CharityPlugin getInstance() {
+        return instance;
+    }
 }

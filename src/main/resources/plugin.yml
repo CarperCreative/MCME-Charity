@@ -3,6 +3,7 @@ version: ${project.version}
 main: com.mcmiddleearth.mcmecharity.CharityPlugin
 api-version: 1.16
 authors: [ Eriol_Eandur ]
+depend: [MCME-Scripts]
 description: Manages Interation with Tiltify Funraising API
 
 commands:

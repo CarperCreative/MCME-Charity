@@ -22,20 +22,24 @@ public class ChallengeManager {
         challenges = new HashSet<>();
     }
 
+    private final JsonParser jsonParser = new JsonParser();
+
     public synchronized void handleChallenges() {
-        try {
-            challenges.stream().filter(challenge -> !challenge.isHandled() && challenge.getTotalAmountRaised() >= challenge.getAmount())
+        if(CharityPlugin.getStreamer()!=null) {
+            try {
+                challenges.stream().filter(challenge -> !challenge.isHandled() && challenge.getTotalAmountRaised() >= challenge.getAmount())
                     .forEach(challenge -> {
-                        if(challenge.getAction()!=null) {
+                        if (challenge.getAction() != null) {
                             challenge.getAction().execute(null,
-                                    challenge.getName() + "Target reached! " +challenge.getTotalAmountRaised()+"$ raised!",
-                                    challenge.getTotalAmountRaised()+"");
+                                    challenge.getName() + "Target reached! " + challenge.getTotalAmountRaised() + "$ raised!",
+                                    challenge.getTotalAmountRaised() + "");
                         }
                         challenge.setHandled(true);
-                        CharityPlugin.setStorage(KEY_CHALLENGE, challenge.getChampaignId()+"_"+challenge.getId(), true, false);
+                        CharityPlugin.setStorage(KEY_CHALLENGE, challenge.getChampaignId() + "_" + challenge.getId(), true, false);
                     });
-        } finally {
-            CharityPlugin.saveStorage();
+            } finally {
+                CharityPlugin.saveStorage();
+            }
         }
     }
 
@@ -43,7 +47,7 @@ public class ChallengeManager {
     public synchronized void updateChallenges(String challengeData) {
         challenges.clear();
         Gson gson = new Gson();
-        JsonElement challengeDataJson =  JsonParser.parseString(challengeData);
+        JsonElement challengeDataJson =  jsonParser.parse(challengeData);
         JsonArray challengeListJson = challengeDataJson.getAsJsonObject().get("data").getAsJsonArray();
         for(int i = 0; i< challengeListJson.size(); i++) {
             Challenge challenge = gson.fromJson(challengeListJson.get(i), Challenge.class);

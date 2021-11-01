@@ -47,6 +47,10 @@ public class Poll {
         return name;
     }
 
+    public boolean isActive() {
+        return active;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

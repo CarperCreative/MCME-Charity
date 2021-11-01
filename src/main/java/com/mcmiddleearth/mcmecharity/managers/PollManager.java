@@ -5,10 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mcmiddleearth.mcmecharity.CharityPlugin;
-import com.mcmiddleearth.mcmecharity.Donation;
-import com.mcmiddleearth.mcmecharity.actions.Action;
 import com.mcmiddleearth.mcmecharity.actions.ActionCompiler;
-import com.mcmiddleearth.mcmecharity.incentives.Challenge;
 import com.mcmiddleearth.mcmecharity.incentives.Poll;
 import com.mcmiddleearth.mcmecharity.incentives.PollOption;
 
@@ -25,34 +22,38 @@ public class PollManager {
         polls = new HashSet<>();
     }
 
+    private final JsonParser jsonParser = new JsonParser();
+
     public synchronized void handlePolls() {
-        polls.stream().filter(poll -> poll.getHandled()+poll.getPeriod() < System.currentTimeMillis())
-              .forEach(poll -> {
-                  poll.setHandled(System.currentTimeMillis());
-                  CharityPlugin.setStorageLong(KEY_POLL,poll.getChampaignId()+"_"+poll.getId(),System.currentTimeMillis(), false);
-                  PollOption top = null;
-                  for(int i = 0; i < poll.getOptions().length; i++) {
-                      if(top == null || top.getTotalAmountRaised() < poll.getOptions()[i].getTotalAmountRaised()) {
-                          top = poll.getOptions()[i];
-                      }
-                  }
-                  if(top != null && top.getAction() != null) {
-                      StringBuilder message = new StringBuilder(poll.getName());
-                      double amount=0;
-                      for(int i = 0; i < poll.getOptions().length; i++) {
-                          message.append(" - ").append(poll.getOptions()[i].getName()).append(": ").append(poll.getOptions()[i].getTotalAmountRaised());
-                          amount = amount + poll.getOptions()[i].getTotalAmountRaised();
-                      }
-                      top.getAction().execute(null,message.toString(),amount+"");
-                  }
-              });
-        CharityPlugin.saveStorage();
+        if(CharityPlugin.getStreamer()!=null) {
+            polls.stream().filter(poll -> poll.isActive() && poll.getHandled() + poll.getPeriod() < System.currentTimeMillis())
+                .forEach(poll -> {
+                    poll.setHandled(System.currentTimeMillis());
+                    CharityPlugin.setStorageLong(KEY_POLL, poll.getChampaignId() + "_" + poll.getId(), System.currentTimeMillis(), false);
+                    PollOption top = null;
+                    for (int i = 0; i < poll.getOptions().length; i++) {
+                        if (top == null || top.getTotalAmountRaised() < poll.getOptions()[i].getTotalAmountRaised()) {
+                            top = poll.getOptions()[i];
+                        }
+                    }
+                    if (top != null && top.getAction() != null) {
+                        StringBuilder message = new StringBuilder(poll.getName());
+                        double amount = 0;
+                        for (int i = 0; i < poll.getOptions().length; i++) {
+                            message.append(" - ").append(poll.getOptions()[i].getName()).append(": ").append(poll.getOptions()[i].getTotalAmountRaised());
+                            amount = amount + poll.getOptions()[i].getTotalAmountRaised();
+                        }
+                        top.getAction().execute(null, message.toString(), amount + "");
+                    }
+                });
+            CharityPlugin.saveStorage();
+        }
     }
 
     public synchronized void updatePolls(String pollData) {
         polls.clear();
         Gson gson = new Gson();
-        JsonElement pollDataJson =  JsonParser.parseString(pollData);
+        JsonElement pollDataJson =  jsonParser.parse(pollData);
         JsonArray pollListJson = pollDataJson.getAsJsonObject().get("data").getAsJsonArray();
         for(int i = 0; i< pollListJson.size(); i++) {
             Poll poll = gson.fromJson(pollListJson.get(i), Poll.class);

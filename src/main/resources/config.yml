@@ -1,9 +1,14 @@
 tiltify:
   campaign_id: xxx
   bearer: xxx
+streamer: Eriol_Eandur
+lembas_duration: 400
 reward:
   1: "script charity_stream_incentives summon_dog"
   2: "script charity_stream_incentives summon_cat"
+  3: "bed"
+  4: "rain potatoes"
+  5: "inventory_replace tropical_fish"
 poll:
   1:
     period: 100000
@@ -14,4 +19,4 @@ poll:
     45: "script arg1 arg2 arg3"
     34: "script arg1 arg3 arg3"
 challenge:
-  32: "script arg1 arg2 arg3"
+  8: "script charity_stream_incentives loot_box"
