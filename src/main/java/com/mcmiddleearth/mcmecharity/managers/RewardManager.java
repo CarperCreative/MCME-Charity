@@ -7,10 +7,7 @@ import com.mcmiddleearth.mcmecharity.actions.Action;
 import com.mcmiddleearth.mcmecharity.actions.ActionCompiler;
 import com.mcmiddleearth.mcmecharity.incentives.Reward;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class RewardManager {
@@ -19,12 +16,14 @@ public class RewardManager {
 
     private final Map<Integer, Reward> registeredRewards = new HashMap<>();
 
-    private final Set<Donation> donations = new HashSet<>();
+    private final List<Donation> donations = new ArrayList<>();
 
     private static final String KEY_REWARD = "reward",
                                 KEY_DONATION = "donation";
 
     private final JsonParser jsonParser = new JsonParser();
+
+    private int donationCooldown = 0, maxDonationCooldown = 200;
 
    /*public void addPlayer(Player player) {
         registeredPlayers.add(player);
@@ -67,21 +66,23 @@ public class RewardManager {
     }
 
     public synchronized void handleRewards() {
-        if(CharityPlugin.getStreamer()!=null) {
+        if(CharityPlugin.getStreamer()!=null && donationCooldown == 0) {
             try {
 //Logger.getGlobal().info("Handle rewards: " + donations.size());
-                donations.stream().filter(donation -> !donation.isHandled()).forEach(donation -> {
+                donations.stream().filter(donation -> !donation.isHandled()).findFirst().ifPresent(donation -> {
                     if (donation.getReward() != null && donation.getReward().getAction() != null) {
                         Logger.getLogger(RewardManager.class.getSimpleName()).info("Donation reward: " + donation.getName());
                         donation.getReward().getAction().execute(donation.getName(), donation.getComment(), "" + donation.getAmount());
                         donation.setHandled(true);
                         CharityPlugin.setStorage(KEY_DONATION, "" + donation.getId(), true, false);
+                        donationCooldown = maxDonationCooldown;
                     }
                 });
             } finally {
                 CharityPlugin.saveStorage();
             }
         }
+        donationCooldown = Math.max(0,--donationCooldown);
     }
 
     public synchronized void updateDonations(String donationData) {
@@ -108,5 +109,9 @@ public class RewardManager {
             donations.removeAll(removal);
             donations.addAll(recentDonations);
         }
+    }
+
+    public void setCooldown(int maxDonationCooldown) {
+        this.maxDonationCooldown = maxDonationCooldown;
     }
 }

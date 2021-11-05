@@ -33,6 +33,10 @@ public final class CharityPlugin extends JavaPlugin {
     private FileConfiguration storage;
     private static final String storageFilename = "storage.yml";
 
+    RewardManager rewardManager;
+    PollManager pollManager;
+    ChallengeManager challengeManager;
+
     @Override
     public void onEnable() {
         //tiltifyConnector = new TiltifyConnector();
@@ -49,9 +53,9 @@ public final class CharityPlugin extends JavaPlugin {
             e.printStackTrace();
         }
 
-        RewardManager rewardManager = new RewardManager();
-        PollManager pollManager = new PollManager();
-        ChallengeManager challengeManager = new ChallengeManager();
+        rewardManager = new RewardManager();
+        pollManager = new PollManager();
+        challengeManager = new ChallengeManager();
 
         Objects.requireNonNull(Bukkit.getServer().getPluginCommand("charity")).setExecutor(new CharityCommand());
 
@@ -115,5 +119,17 @@ public final class CharityPlugin extends JavaPlugin {
 
     public static CharityPlugin getInstance() {
         return instance;
+    }
+
+    public RewardManager getRewardManager() {
+        return rewardManager;
+    }
+
+    public PollManager getPollManager() {
+        return pollManager;
+    }
+
+    public ChallengeManager getChallengeManager() {
+        return challengeManager;
     }
 }

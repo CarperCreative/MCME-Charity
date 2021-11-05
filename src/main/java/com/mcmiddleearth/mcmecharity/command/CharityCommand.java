@@ -22,6 +22,14 @@ public class CharityCommand implements CommandExecutor {
             } else if(args.length>0 && args[0].equalsIgnoreCase("reload")) {
                 CharityPlugin.getInstance().reloadConfig();
                 sender.sendMessage(ChatColor.AQUA+"[CharityPlugin] Reloading configuration!");
+            } else if(args.length>1 && args[0].equalsIgnoreCase("cooldown")) {
+                try {
+                    int cooldown = Integer.parseInt(args[1]);
+                    CharityPlugin.getInstance().getRewardManager().setCooldown(cooldown);
+                    sender.sendMessage(ChatColor.AQUA+"[CharityPlugin] Donation reward cooldown set to: "+cooldown);
+                }catch (NumberFormatException ex) {
+                    sender.sendMessage(ChatColor.RED+"[CharityPlugin] Invalid numeric format for donation cooldown.");
+                }
             }
             /*else if (args.length > 0 && args[0].equalsIgnoreCase("on")) {
                     rewardManager.addPlayer((Player) sender);
