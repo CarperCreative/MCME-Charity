@@ -2,10 +2,12 @@ package com.mcmiddleearth.mcmecharity.command;
 
 import com.mcmiddleearth.mcmecharity.CharityPlugin;
 import com.mcmiddleearth.mcmecharity.TiltifyUpdater;
+import com.mcmiddleearth.mcmecharity.actions.InventoryReplaceAction;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class CharityCommand implements CommandExecutor {
@@ -30,6 +32,17 @@ public class CharityCommand implements CommandExecutor {
                 }catch (NumberFormatException ex) {
                     sender.sendMessage(ChatColor.RED+"[CharityPlugin] Invalid numeric format for donation cooldown.");
                 }
+            } else if(args.length>0 && args[0].equalsIgnoreCase("restoreinv")) {
+                int back = 0;
+                if(args.length>1) {
+                    try {
+                        back = Integer.parseInt(args[1]);
+                    } catch (NumberFormatException ex) {
+                        sender.sendMessage(ChatColor.RED + "[CharityPlugin] Invalid numeric format for inventory restore. Restoring latest save.");
+                    }
+                }
+                InventoryReplaceAction.loadInventory(back);
+                sender.sendMessage(ChatColor.AQUA+"[CharityPlugin] Restoring inventory!");
             }
             /*else if (args.length > 0 && args[0].equalsIgnoreCase("on")) {
                     rewardManager.addPlayer((Player) sender);

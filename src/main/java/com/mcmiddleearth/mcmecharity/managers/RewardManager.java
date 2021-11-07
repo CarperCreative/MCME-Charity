@@ -23,30 +23,7 @@ public class RewardManager {
 
     private final JsonParser jsonParser = new JsonParser();
 
-    private int donationCooldown = 0, maxDonationCooldown = 200;
-
-   /*public void addPlayer(Player player) {
-        registeredPlayers.add(player);
-    }
-
-    public void removePlayer(Player player) {
-        registeredPlayers.remove(player);
-    }
-
-    public Set<Player> getRegisteredPlayers() { return registeredPlayers;}
-    */
-
-    /*public boolean hasRegistered(Reward reward) {
-        //Logger.getGlobal().info("New: "+reward.getDescription());
-        //Logger.getGlobal().info("Registered:" );
-        //registeredRewards.forEach(rew -> Logger.getGlobal().info(rew.getDescription()));
-        //Logger.getGlobal().info("Contains: "+registeredRewards.contains(reward));
-        return registeredRewards.contains(reward);
-    }*/
-
-    /*public void register(Reward reward) {
-        registeredRewards.add(reward);
-    }*/
+    private int donationCooldown = 0, maxDonationCooldown = 20; //
 
     public synchronized void updateRewards(String rewardData) {
         registeredRewards.clear();
@@ -83,6 +60,7 @@ public class RewardManager {
             }
         }
         donationCooldown = Math.max(0,--donationCooldown);
+        Logger.getLogger(this.getClass().getSimpleName()).info("Donation queue size: "+donations.size()+" - Cooldown: "+donationCooldown);
     }
 
     public synchronized void updateDonations(String donationData) {
@@ -113,5 +91,6 @@ public class RewardManager {
 
     public void setCooldown(int maxDonationCooldown) {
         this.maxDonationCooldown = maxDonationCooldown;
+        if(donationCooldown > this.maxDonationCooldown) donationCooldown = this.maxDonationCooldown;
     }
 }
