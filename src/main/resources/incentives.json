@@ -6,23 +6,180 @@
       "name": "summon_dog",
       "action":
       {
-        "type": "random_spawn",
-        "quantity": "1",
+        "type": "spawn_relative",
         "select": "@a[name=Eriol_Eandur]",
-        "radius": "5..7",
-        "choices": [
-          {
-            "spawn_data": {
-              "type": "wolf"
-            }
-          }
-        ],
+        "location": "world,0,0,4",
+        "spawn_data": {
+          "type": "wolf"
+        },
         "goal": {
-          "goal_type": "follow_entity"
+          "goal_type": "defend_entity"
         },
         "goal_target": "@a[name=Eriol_Eandur]",
         "lifespan": 2000
       }
+    },
+    {
+      "type": "external",
+      "name": "summon_cat",
+      "action":
+      {
+        "type": "spawn_relative",
+        "select": "@a[name=Eriol_Eandur]",
+        "location": "world,0,0,4",
+        "spawn_data": {
+          "type": "cat"
+        },
+        "goal": {
+          "goal_type": "defend_entity"
+        },
+        "goal_target": "@a[name=Eriol_Eandur]",
+        "lifespan": 2000
+      }
+    },
+    {
+      "type": "external",
+      "name": "summon_parrot",
+      "action":
+      {
+        "type": "spawn_relative",
+        "select": "@a[name=Eriol_Eandur]",
+        "location": "world,0,0,4",
+        "spawn_data": {
+          "type": "parrot"
+        },
+        "goal": {
+          "goal_type": "defend_entity"
+        },
+        "goal_target": "@a[name=Eriol_Eandur]",
+        "lifespan": 2000
+      }
+    },
+    {
+      "type": "external",
+      "name": "summon_boat",
+      "action":
+      {
+        "type": "spawn_relative",
+        "select": "@a[name=Eriol_Eandur]",
+        "location": "world,0,0,4",
+        "server_side": true,
+        "spawn_data": {
+          "type": "boat",
+          "material": "oak_boat"
+        }
+      }
+    },
+    {
+      "type": "external",
+      "name": "summon_boromir",
+      "action":
+      {
+        "type": "spawn_relative",
+        "select": "@a[name=Eriol_Eandur]",
+        "location": "world,0,0,4",
+        "spawn_data": "boromir",
+        "goal": {
+          "goal_type": "defend_entity"
+        },
+        "goal_target": "@a[name=Eriol_Eandur]",
+        "lifespan": 2000
+      }
+    },
+    {
+      "type": "external",
+      "name": "summon_aragorn",
+      "action":
+      {
+        "type": "spawn_relative",
+        "select": "@a[name=Eriol_Eandur]",
+        "location": "world,0,0,4",
+        "spawn_data": "aragorn",
+        "goal": {
+          "goal_type": "defend_entity"
+        },
+        "goal_target": "@a[name=Eriol_Eandur]",
+        "lifespan": 2000
+      }
+    },
+    {
+      "type": "external",
+      "name": "summon_ent",
+      "action":
+      {
+        "type": "spawn_relative",
+        "select": "@a[name=Eriol_Eandur]",
+        "location": "world,0,0,4",
+        "spawn_data": "ent",
+        "goal": {
+          "goal_type": "defend_entity"
+        },
+        "goal_target": "@a[name=Eriol_Eandur]",
+        "lifespan": 2000
+      }
+    },
+    {
+      "type": "external",
+      "name": "summon_beorn",
+      "action":
+      {
+        "type": "spawn_relative",
+        "select": "@a[name=Eriol_Eandur]",
+        "location": "world,0,0,4",
+        "spawn_data": "beorn",
+        "goal": {
+          "goal_type": "defend_entity"
+        },
+        "goal_target": "@a[name=Eriol_Eandur]",
+        "lifespan": 2000
+      }
+    },
+    {
+      "type": "external",
+      "name": "summon_horse",
+      "action":
+      {
+        "type": "spawn_relative",
+        "select": "@a[name=Eriol_Eandur]",
+        "location": "world,0,0,4",
+        "spawn_data": {
+          "type": "horse",
+          "tamed": true,
+          "saddle": true
+        },
+        "goal": {
+          "goal_type": "defend_entity"
+        },
+        "goal_target": "@a[name=Eriol_Eandur]",
+        "lifespan": 2000
+      }
+    },
+    {
+      "type": "external",
+      "name": "summon_chatlet",
+      "actions": [
+        {
+          "type": "talk",
+          "delay": 25,
+          "message": "Hullo!",
+          "select": "@s",
+          "duration": 200
+        },
+        {
+          "type": "spawn_relative",
+          "select": "@a[name=Eriol_Eandur]",
+          "spawn_data": "uruk",
+          "name": "chatlet",
+          "lifespan": 300,
+          "location": "world,0,0,4",
+          "checkpoints": [
+            "world,5,0,5",
+            "world,-5,0,5",
+            "world,-5,0,-5",
+            "world,5,0,-5"
+          ]
+        }
+      ]
     },
     {
       "type": "external",
@@ -111,11 +268,56 @@
     },
     {
       "type": "external",
+      "name": "dwarven_persona",
+      "actions": [
+        {
+          "type": "add_potion_effect",
+          "select": "@a[name=Eriol_Eandur]",
+          "potion_effect": {
+            "duration": 300,
+            "type": "slowness",
+            "amplifier": 1,
+            "particles": true,
+            "ambient": true,
+            "icon": false
+          }
+        },
+        {
+          "type": "add_potion_effect",
+          "select": "@a[name=Eriol_Eandur]",
+          "potion_effect": {
+            "duration": 300,
+            "type": "strength",
+            "amplifier": 2,
+            "particles": true,
+            "ambient": true,
+            "icon": false
+          }
+        }
+      ]
+    },
+    {
+      "type": "external",
+      "name": "potato_rain",
+      "action":
+      {
+        "type": "rain_item",
+        "select": "@a[name=Eriol_Eandur]",
+        "item": {
+          "material": "potato"
+        },
+        "radius": 10,
+        "probability": 0.4,
+        "drop_height": 6,
+        "duration": 230
+      }
+    },
+    {
+      "type": "external",
       "name": "give_random_item",
       "action": {
         "type": "give_item",
         "select": "@a[name=Eriol_Eandur]",
-        "slot": "hand",
         "choices": [
           {
             "weight": 10,
@@ -141,8 +343,23 @@
               }
             ]
           }
-        ],
-        "duration": 4000
+        ]
+      }
+    },
+    {
+      "type": "external",
+      "name": "put_on_the_ring",
+      "action":
+      {
+        "type": "give_item",
+        "select": "@a[name=Eriol_Eandur]",
+        "item": {
+          "name": "The One Ring",
+          "material": "gold_nugget",
+          "custom_model_data": 3001
+        },
+        "slot": "hand",
+        "duration": 2000
       }
     },
     {
@@ -153,6 +370,7 @@
         "type": "give_item",
         "select": "@a[name=Eriol_Eandur]",
         "item": {
+          "name": "Lembas",
           "material": "cookie",
           "quantity": 3
         }
@@ -168,7 +386,7 @@
         "slot": "hand",
         "item": {
           "material": "diamond_sword",
-          "name": "Rigazarak",
+          "name": "Rogazugdarak",
           "lore":[
             "Battle Axe",
             "of Thor, King under the Mountain"
@@ -178,22 +396,94 @@
               "type": "sharpness",
               "level": 2
             },{
-              "type": "sweeping_edge",
+              "type": "unbreaking",
               "level": 3
             }
           ],
           "attribute_modifiers": [
             {
-              "attribute": "attack_knockback",
+              "attribute": "generic_attack_knockback",
               "name": "Great Knockback",
               "operation": "add_number",
               "amount": 2,
+              "slot": "hand"
+            },
+            {
+              "attribute": "generic_attack_damage",
+              "name": "Great Knockback",
+              "operation": "add_number",
+              "amount": 0,
+              "slot": "hand"
+            },
+            {
+              "attribute": "generic_attack_speed",
+              "name": "Great Knockback",
+              "operation": "add_number",
+              "amount": 0,
               "slot": "hand"
             }
           ]
         },
         "duration": 4000
       }
+    },
+    {
+      "type": "external",
+      "name": "elf_goodie_bag",
+      "actions": [
+        {
+          "type": "spawn_relative",
+          "select": "@a[name=Eriol_Eandur]",
+          "spawn_data": "uruk",
+          "name": "chatlet",
+          "lifespan": 300,
+          "location": "world,0,0,4",
+          "checkpoints": [
+            "world,5,0,5",
+            "world,-5,0,5",
+            "world,-5,0,-5",
+            "world,5,0,-5"
+          ]
+        },
+        {
+          "type": "talk",
+          "delay": 25,
+          "message": "The Lady of the Golden Forest sends you her greetings and some supplies!",
+          "select": "@s",
+          "duration": 200
+        },
+        {
+          "type": "give_item",
+          "delay": 50,
+          "select": "@a[name=Eriol_Eandur]",
+          "choices": [
+            {
+              "weight": 10,
+              "items": [
+                {
+                  "material": "cookie",
+                  "quantity": 2
+                },
+                "stick"
+              ]
+            },
+            {
+              "weight": 20,
+              "items": [
+                {
+                  "material": "bow",
+                  "quantity": 1,
+                  "damage": 65
+                },
+                {
+                  "material": "arrow",
+                  "quantity": 23
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "type": "external",
@@ -209,7 +499,20 @@
           },
           "cookie"
         ],
-        "duration": 600
+        "duration": 400
+      }
+    },
+    {
+      "type": "external",
+      "name": "resource_supply",
+      "action":
+      {
+        "type": "give_item",
+        "select": "@a[name=Eriol_Eandur]",
+        "item": {
+          "material": "oak_planks",
+          "quantity": 3
+        }
       }
     },
     {
