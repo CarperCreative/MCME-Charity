@@ -34,7 +34,8 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onItemSpawn(ItemSpawnEvent event) {
-        if(event.getEntity().getItemStack().getType().name().endsWith("_BED")) {
+        if(event.getEntity().getItemStack().getType().name().endsWith("_BED")
+            || event.getEntity().getItemStack().getType().name().endsWith("_BOAT")) {
             event.setCancelled(true);
         }
     }
@@ -42,7 +43,8 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onBedCraft(CraftItemEvent event) {
         ItemStack item = event.getInventory().getResult();
-        if(item!=null && item.getType().name().endsWith("_BED")) {
+        if(item!=null && (item.getType().name().endsWith("_BED")
+                       || item.getType().name().endsWith("_BOAT"))) {
             event.setCancelled(true);
         }
     }
