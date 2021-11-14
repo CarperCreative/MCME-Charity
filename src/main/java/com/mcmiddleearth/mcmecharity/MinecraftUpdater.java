@@ -31,8 +31,11 @@ public class MinecraftUpdater extends BukkitRunnable {
                 });
             }
         });*/
-        rewardManager.handleRewards();
-        pollManager.handlePolls();
-        challengeManager.handleChallenges();
+        if(CharityPlugin.getStreamer()!=null) {
+            CharityPlugin.loadStorage();
+            rewardManager.handleRewards();
+            pollManager.handlePolls();
+            challengeManager.handleChallenges();
+        }
     }
 }

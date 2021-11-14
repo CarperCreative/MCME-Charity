@@ -42,16 +42,6 @@ public final class CharityPlugin extends JavaPlugin {
         //tiltifyConnector = new TiltifyConnector();
         //private TiltifyConnector tiltifyConnector;
         saveDefaultConfig();
-        try {
-            storage = new YamlConfiguration();
-            File storageFile = new File(getDataFolder(),storageFilename);
-            if(!storageFile.exists())
-                if(storageFile.createNewFile())
-                    getLogger().severe("Can't create storage file!");
-            storage.load(storageFile);
-        } catch (IOException | InvalidConfigurationException e) {
-            e.printStackTrace();
-        }
 
         rewardManager = new RewardManager();
         pollManager = new PollManager();
@@ -63,6 +53,7 @@ public final class CharityPlugin extends JavaPlugin {
         tiltifyUpdater = new TiltifyUpdater(rewardManager, pollManager, challengeManager).runTaskTimerAsynchronously(this,200,100);
 
         instance = this;
+        loadStorage();
 
         Bukkit.getPluginManager().registerEvents(new PlayerListener(),this);
         Bukkit.getPluginManager().registerEvents(new OneRingEffect(),this);
@@ -104,6 +95,19 @@ public final class CharityPlugin extends JavaPlugin {
         try {
             instance.storage.save(new File(instance.getDataFolder(),storageFilename));
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized static void loadStorage() {
+        try {
+            instance.storage = new YamlConfiguration();
+            File storageFile = new File(instance.getDataFolder(),storageFilename);
+            if(!storageFile.exists())
+                if(storageFile.createNewFile())
+                    instance.getLogger().severe("Can't create storage file!");
+            instance.storage.load(storageFile);
+        } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
     }
