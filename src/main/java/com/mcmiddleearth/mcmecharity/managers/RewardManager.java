@@ -47,6 +47,7 @@ public class RewardManager {
             try {
 //Logger.getGlobal().info("Handle rewards: " + donations.size());
                 donations.stream().filter(donation -> !donation.isHandled()).findFirst().ifPresent(donation -> {
+//Logger.getGlobal().info("Donation: " + donation.getName()+" "+donation.getReward()+" "+(donation.getReward()!=null?donation.getReward().getAction():"nullll"));
                     if (donation.getReward() != null && donation.getReward().getAction() != null) {
                         Logger.getLogger(RewardManager.class.getSimpleName()).info("Donation reward: " + donation.getName());
                         donation.getReward().getAction().execute(donation.getName(), donation.getComment(), "" + donation.getAmount());
@@ -64,6 +65,7 @@ public class RewardManager {
     }
 
     public synchronized void updateDonations(String donationData) {
+//Logger.getGlobal().info("Donation data string: " + donationData);
         Gson gson = new Gson();
         JsonElement donationDataJson = jsonParser.parse(donationData);
         if(donationDataJson instanceof JsonObject && donationDataJson.getAsJsonObject().has("data")) {
@@ -73,9 +75,12 @@ public class RewardManager {
                 Donation donation = gson.fromJson(donationListJson.get(i), Donation.class);
                 boolean isHandled = CharityPlugin.getStorage(KEY_DONATION, "" + donation.getId());
                 if (!isHandled) {
+//Logger.getGlobal().info("not Handled!");
                     int rewardId = donation.getRewardId();
                     Reward reward = registeredRewards.get(rewardId);
+//Logger.getGlobal().info("Update Donation: " + donation.getName()+" "+donation.getReward()+" "+(donation.getReward()!=null?donation.getReward().getAction():"nullll"));
                     if (reward != null) {
+//Logger.getGlobal().info("has Reward!");
                         donation.setReward(reward);
                         recentDonations.add(donation);
                     }
