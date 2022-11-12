@@ -23,6 +23,7 @@ public class ScriptAction implements Action {
     public void execute(String donor, String message, String amount) {
         if(CharityPlugin.getStreamer()!=null) {
             List<String> list = new ArrayList<>(Arrays.asList(arguments));
+            list.add("player:" + CharityPlugin.getStreamer());
             if (donor != null) list.add("name:" + donor);
             if (message != null) list.add("message:" + message);
             if (amount != null) list.add("amount:" + amount);
