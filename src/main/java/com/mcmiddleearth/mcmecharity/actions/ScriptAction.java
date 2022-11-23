@@ -31,4 +31,8 @@ public class ScriptAction implements Action {
             MCMEScripts.getExternalTriggerManager().call(script, name, list.toArray(new String[0]));
         }
     }
+
+    public String getScript() {
+        return this.script;
+    }
 }
