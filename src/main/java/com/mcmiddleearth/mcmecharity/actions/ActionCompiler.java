@@ -19,6 +19,11 @@ public class ActionCompiler {
                         result = new ScriptAction(actionData[1], actionData[2], Arrays.copyOfRange(actionData, 3, actionData.length));
                     }
                     break;
+                case "bossbattle":
+                    if(actionData.length > 2) {
+                        result = new BossBattleAction(actionData[1]);
+                    }
+                    break;
                 case "entity":
                     result = new EntitiesAction(Arrays.copyOfRange(actionData, 1, actionData.length));
                     break;
