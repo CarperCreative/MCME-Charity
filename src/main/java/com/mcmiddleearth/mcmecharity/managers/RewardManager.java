@@ -9,15 +9,14 @@ import com.mcmiddleearth.mcmecharity.CharityPlugin;
 import com.mcmiddleearth.mcmecharity.Donation;
 import com.mcmiddleearth.mcmecharity.actions.Action;
 import com.mcmiddleearth.mcmecharity.actions.ActionCompiler;
-import com.mcmiddleearth.mcmecharity.actions.ScriptAction;
 import com.mcmiddleearth.mcmecharity.incentives.Reward;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 public class RewardManager {
@@ -50,6 +49,8 @@ public class RewardManager {
      */
     private final RewardCooldown ungroupedCooldown = new RewardCooldown(20);
 
+    private final Set<String> knownCooldownGroupNames = new HashSet<>();
+
     public RewardManager() {
         cooldownGroups.put(COOLDOWN_GLOBAL, globalCooldown);
         cooldownGroups.put(COOLDOWN_UNGROUPED, ungroupedCooldown);
@@ -57,6 +58,10 @@ public class RewardManager {
 
     public synchronized void updateRewards(String rewardData) {
         registeredRewards.clear();
+
+        knownCooldownGroupNames.clear();
+        knownCooldownGroupNames.add(COOLDOWN_GLOBAL);
+        knownCooldownGroupNames.add(COOLDOWN_UNGROUPED);
 
         Gson gson = new Gson();
         JsonElement rewardDataJson =  jsonParser.parse(rewardData);
@@ -69,6 +74,11 @@ public class RewardManager {
             if(action!=null) {
                 reward.setAction(action);
                 registeredRewards.put(reward.getId(), reward);
+
+                String cooldownGroupName = action.getCooldownGroupName();
+                if (cooldownGroupName != null) {
+                    knownCooldownGroupNames.add(cooldownGroupName);
+                }
             }
         }
     }
@@ -158,6 +168,10 @@ public class RewardManager {
         return cooldownGroups.get(groupName);
     }
 
+    public RewardCooldown getOrCreateCooldown(String groupName) {
+        return this.cooldownGroups.computeIfAbsent(groupName, key -> new RewardCooldown(0));
+    }
+
     private RewardCooldown getCooldownForDonationOrNull(Donation donation) {
         String cooldownGroupName = getCooldownGroupNameForDonationOrNull(donation);
         return getCooldownOrNull(cooldownGroupName);
@@ -176,15 +190,15 @@ public class RewardManager {
         return cooldownGroups;
     }
 
+    public Set<String> getKnownCooldownGroupNames() {
+        return knownCooldownGroupNames;
+    }
+
     public void setCooldown(int maxDonationCooldown) {
         globalCooldown.setMaxCooldown(maxDonationCooldown);
     }
 
-    public void setCooldown(String groupName, int maxDonationCooldown) {
-        this.cooldownGroups.put(groupName, new RewardCooldown(maxDonationCooldown));
-    }
-
-    private static class RewardCooldown {
+    public static class RewardCooldown {
         private int currentCooldown = 0;
         private int maxCooldown;
 
@@ -206,9 +220,6 @@ public class RewardManager {
 
         public void setMaxCooldown(int maxCooldown) {
             this.maxCooldown = maxCooldown;
-            if (currentCooldown > maxCooldown) {
-                currentCooldown = maxCooldown;
-            }
         }
 
         public boolean isActive() {
