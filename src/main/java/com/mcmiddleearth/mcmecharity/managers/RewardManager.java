@@ -82,6 +82,9 @@ public class RewardManager {
 
                     this.giveReward(donation);
                     currentCooldown.set(pair.getSecond());
+
+                    // End iteration here to prevent running the reward action twice and affecting global cooldown
+                    continue;
                 }
             }
 
