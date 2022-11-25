@@ -1,6 +1,7 @@
 tiltify:
   campaign_id: xxx
   bearer: xxx
+testing: true
 streamer: Eriol_Eandur
 lembas_duration: 400
 reward:

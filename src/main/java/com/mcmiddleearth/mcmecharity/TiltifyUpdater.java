@@ -22,7 +22,7 @@ public class TiltifyUpdater extends BukkitRunnable {
 
     private final Gson gson;
     private final JsonParser jsonParser;
-    private static boolean testing = true;
+    private static boolean testing = !"false".equals(CharityPlugin.getConfigString("testing"));
 
     private static final String apiUrl = "https://tiltify.com/api/v3/";
     private static final String
