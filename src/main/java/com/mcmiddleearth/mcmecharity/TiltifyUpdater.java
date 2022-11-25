@@ -95,7 +95,7 @@ public class TiltifyUpdater extends BukkitRunnable {
             HttpClientBuilder clientBuilder = HttpClientBuilder.create().disableCookieManagement();
             try (CloseableHttpClient client = clientBuilder.build()) {
 
-                HttpGet request = new HttpGet(apiUrl + "/campaigns/" + CharityPlugin.getConfigString(KEY_CAMPAIGN_ID) + "/" + key);
+                HttpGet request = new HttpGet(apiUrl + "/campaigns/" + CharityPlugin.getConfigString(KEY_CAMPAIGN_ID) + "/" + key + (key.equalsIgnoreCase("donations") ? "?count=100" : ""));
 
                 request.addHeader("Authorization", "Bearer " + CharityPlugin.getConfigString(KEY_BEARER));
                 response = client.execute(request, httpResponse -> {
