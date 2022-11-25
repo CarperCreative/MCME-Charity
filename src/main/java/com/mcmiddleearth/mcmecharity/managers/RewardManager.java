@@ -34,7 +34,7 @@ public class RewardManager {
     private final JsonParser jsonParser = new JsonParser();
     private final Map<String, RewardCooldown> scriptCooldowns = new HashMap<>();
 
-    private int donationCooldown = 0, maxDonationCooldown = 20; //
+    private final RewardCooldown globalCooldown = new RewardCooldown(20);
 
     public synchronized void updateRewards(String rewardData) {
         registeredRewards.clear();
@@ -85,22 +85,22 @@ public class RewardManager {
                 }
             }
 
-            if(this.donationCooldown > 0) break;
+            if (globalCooldown.isActive()) break;
 
             this.giveReward(donation);
-            this.donationCooldown = this.maxDonationCooldown;
+            globalCooldown.reset();
             break;
         }
 
         CharityPlugin.saveStorage();
 
-        donationCooldown = Math.max(0,--donationCooldown);
+        globalCooldown.decrement();
 
         for (final RewardCooldown cooldown : this.scriptCooldowns.values()) {
             cooldown.decrement();
         }
 
-        Logger.getLogger(this.getClass().getSimpleName()).info("Donation queue size: " + donations.size() + " - Cooldown: " + donationCooldown);
+        Logger.getLogger(this.getClass().getSimpleName()).info("Donation queue size: " + donations.size() + " - Cooldown: " + globalCooldown.getCurrentCooldown());
     }
 
     private void giveReward(Donation donation) {
@@ -141,8 +141,7 @@ public class RewardManager {
     }
 
     public void setCooldown(int maxDonationCooldown) {
-        this.maxDonationCooldown = maxDonationCooldown;
-        if(donationCooldown > this.maxDonationCooldown) donationCooldown = this.maxDonationCooldown;
+        globalCooldown.setMaxCooldown(maxDonationCooldown);
     }
 
     public void setCooldown(String script, int maxDonationCooldown) {
