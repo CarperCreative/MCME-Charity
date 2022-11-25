@@ -21,6 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 public class RewardManager {
+    public static final String COOLDOWN_GLOBAL = "_global";
+    public static final String COOLDOWN_UNGROUPED = "_ungrouped";
 
     //private final Set<Player> registeredPlayers = new HashSet<>();
 
@@ -32,9 +34,26 @@ public class RewardManager {
                                 KEY_DONATION = "donation";
 
     private final JsonParser jsonParser = new JsonParser();
+
+    /**
+     * Cooldown which applies to every single reward.
+     */
+    private final RewardCooldown globalCooldown = new RewardCooldown(0);
+
+    /**
+     * Mapping of all existing cooldown groups, including the special global and ungrouped.
+     */
     private final Map<String, RewardCooldown> cooldownGroups = new HashMap<>();
 
-    private final RewardCooldown globalCooldown = new RewardCooldown(20);
+    /**
+     * Cooldown which applies to all reward actions which don't specify a cooldown group name (return {@code null}).
+     */
+    private final RewardCooldown ungroupedCooldown = new RewardCooldown(20);
+
+    public RewardManager() {
+        cooldownGroups.put(COOLDOWN_GLOBAL, globalCooldown);
+        cooldownGroups.put(COOLDOWN_UNGROUPED, ungroupedCooldown);
+    }
 
     public synchronized void updateRewards(String rewardData) {
         registeredRewards.clear();
@@ -64,37 +83,41 @@ public class RewardManager {
                 continue;
             }
 
-            final Reward reward = donation.getReward();
-            final Action action = reward.getAction();
-
-            final String cooldownGroupName = action.getCooldownGroupName();
-            RewardCooldown cooldown = cooldownGroupName == null ? null : this.cooldownGroups.get(cooldownGroupName);
-            if (cooldown == null) {
-                cooldown = globalCooldown;
-            }
-
-            if (cooldown.isActive()) {
+            if (globalCooldown.isActive()) {
                 continue;
             }
 
+            final Reward reward = donation.getReward();
+            final Action action = reward.getAction();
+
+            RewardCooldown cooldown = getCooldownForDonationOrNull(donation);
+            if (cooldown != null && cooldown.isActive()) {
+                continue;
+            }
+
+            globalCooldown.reset();
+            if (cooldown != null) {
+                cooldown.reset();
+            }
+
             this.giveReward(donation);
-            cooldown.reset();
+
             break;
         }
 
         CharityPlugin.saveStorage();
 
-        globalCooldown.decrement();
-
         for (final RewardCooldown cooldown : this.cooldownGroups.values()) {
             cooldown.decrement();
         }
 
-        Logger.getLogger(this.getClass().getSimpleName()).info("Donation queue size: " + donations.size() + " - Cooldown: " + globalCooldown.getCurrentCooldown());
+        Logger.getLogger(this.getClass().getSimpleName()).info("Donation queue size: " + donations.size() + " - Global cooldown: " + globalCooldown.getCurrentCooldown());
     }
 
     private void giveReward(Donation donation) {
-        Logger.getLogger(RewardManager.class.getSimpleName()).info("Donation reward: " + donation.getName());
+        String cooldownGroupName = getCooldownGroupNameForDonationOrNull(donation);
+        RewardCooldown cooldown = getCooldownOrNull(cooldownGroupName);
+        Logger.getLogger(RewardManager.class.getSimpleName()).info("Giving donation reward for " + donation.getName() + "." + (cooldown == null ? "" : " New cooldown for group " + cooldownGroupName + ": " + cooldown.getCurrentCooldown()));
         donation.getReward().getAction().execute(donation.getName(), donation.getComment(), "" + donation.getAmount());
         donation.setHandled(true);
         CharityPlugin.setStorage(KEY_DONATION, "" + donation.getId(), true, false);
@@ -128,6 +151,29 @@ public class RewardManager {
             donations.removeAll(removal);
             donations.addAll(recentDonations);
         }
+    }
+
+    public RewardCooldown getCooldownOrNull(String groupName) {
+        if (groupName == null) return null;
+        return cooldownGroups.get(groupName);
+    }
+
+    private RewardCooldown getCooldownForDonationOrNull(Donation donation) {
+        String cooldownGroupName = getCooldownGroupNameForDonationOrNull(donation);
+        return getCooldownOrNull(cooldownGroupName);
+    }
+
+    private String getCooldownGroupNameForDonationOrNull(Donation donation) {
+        final Reward reward = donation.getReward();
+        if (reward == null) return null;
+        final Action action = reward.getAction();
+        if (action == null) return null;
+        final String cooldownGroupName = action.getCooldownGroupName();
+        return cooldownGroupName == null ? COOLDOWN_UNGROUPED : cooldownGroupName;
+    }
+
+    public Map<String, RewardCooldown> getCooldownGroups() {
+        return cooldownGroups;
     }
 
     public void setCooldown(int maxDonationCooldown) {
