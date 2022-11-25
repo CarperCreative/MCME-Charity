@@ -11,6 +11,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -49,8 +51,15 @@ public class CharityCommand implements CommandExecutor {
                     if (args[1].equalsIgnoreCase("get")) {
                         for (int index = 2; index < args.length; index++) {
                             String groupName = args[index];
-                            RewardCooldown cooldown = rewardManager.getCooldownOrNull(groupName);
-                            sender.sendMessage(ChatColor.AQUA+"[CharityPlugin] " + stringifyCooldown(groupName, cooldown));
+                            List<RewardCooldown> rewardCooldowns = getCooldownsForName(groupName);
+
+                            if (rewardCooldowns.isEmpty()) {
+                                sender.sendMessage(ChatColor.AQUA+"[CharityPlugin] " + groupName + ": does not exist");
+                            } else {
+                                for (RewardCooldown rewardCooldown : rewardCooldowns) {
+                                    sender.sendMessage(ChatColor.AQUA+"[CharityPlugin] " + stringifyCooldown(rewardCooldown));
+                                }
+                            }
                         }
                         return true;
                     } else if (args[1].equalsIgnoreCase("set") || args[1].equalsIgnoreCase("setmax")) {
@@ -64,9 +73,16 @@ public class CharityCommand implements CommandExecutor {
 
                                 for (int index = 3; index < args.length; index++) {
                                     String groupName = args[index];
-                                    RewardCooldown cooldown = rewardManager.getOrCreateCooldown(groupName);
-                                    setter.accept(cooldown, newCooldown);
-                                    sender.sendMessage(ChatColor.AQUA+"[CharityPlugin] " + stringifyCooldown(groupName, cooldown));
+                                    List<RewardCooldown> rewardCooldowns = getCooldownsForName(groupName);
+
+                                    if (rewardCooldowns.isEmpty()) {
+                                        sender.sendMessage(ChatColor.AQUA+"[CharityPlugin] " + groupName + ": does not exist");
+                                    } else {
+                                        for (RewardCooldown rewardCooldown : rewardCooldowns) {
+                                            setter.accept(rewardCooldown, newCooldown);
+                                            sender.sendMessage(ChatColor.AQUA+"[CharityPlugin] " + stringifyCooldown(rewardCooldown));
+                                        }
+                                    }
                                 }
                             } catch (NumberFormatException ex) {
                                 sender.sendMessage(ChatColor.RED+"[CharityPlugin] Invalid number given for cooldown.");
@@ -103,12 +119,31 @@ public class CharityCommand implements CommandExecutor {
         return true;
     }
 
-    private String stringifyCooldown(String groupName, RewardCooldown cooldown) {
-        if (cooldown == null) {
-            return groupName + " does not exist";
+    private List<RewardCooldown> getCooldownsForName(String groupName) {
+        ArrayList<RewardCooldown> rewardCooldowns = new ArrayList<>();
+        RewardManager rewardManager = CharityPlugin.getInstance().getRewardManager();
+
+        if (groupName.endsWith("*")) {
+            String groupNamePrefix = groupName.substring(0, groupName.length() - 1);
+
+            for (String knownGroupName : rewardManager.getKnownCooldownGroupNames()) {
+                if (knownGroupName.startsWith(groupNamePrefix)) {
+                    rewardCooldowns.add(rewardManager.getOrCreateCooldown(groupNamePrefix));
+                }
+            }
+        } else {
+            rewardCooldowns.add(rewardManager.getOrCreateCooldown(groupName));
         }
 
-        return groupName + ": current = " + cooldown.getCurrentCooldown() + ", max = " + cooldown.getMaxCooldown();
+        return rewardCooldowns;
+    }
+
+    private String stringifyCooldown(RewardCooldown cooldown) {
+        if (cooldown == null) {
+            return "[null]";
+        }
+
+        return cooldown.getGroupName() + ": current = " + cooldown.getCurrentCooldown() + ", max = " + cooldown.getMaxCooldown();
     }
 
 }

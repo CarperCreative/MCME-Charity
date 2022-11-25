@@ -37,7 +37,7 @@ public class RewardManager {
     /**
      * Cooldown which applies to every single reward.
      */
-    private final RewardCooldown globalCooldown = new RewardCooldown(0);
+    private final RewardCooldown globalCooldown = new RewardCooldown(COOLDOWN_GLOBAL, 0);
 
     /**
      * Mapping of all existing cooldown groups, including the special global and ungrouped.
@@ -47,7 +47,7 @@ public class RewardManager {
     /**
      * Cooldown which applies to all reward actions which don't specify a cooldown group name (return {@code null}).
      */
-    private final RewardCooldown ungroupedCooldown = new RewardCooldown(20);
+    private final RewardCooldown ungroupedCooldown = new RewardCooldown(COOLDOWN_UNGROUPED, 20);
 
     private final Set<String> knownCooldownGroupNames = new HashSet<>();
 
@@ -169,7 +169,7 @@ public class RewardManager {
     }
 
     public RewardCooldown getOrCreateCooldown(String groupName) {
-        return this.cooldownGroups.computeIfAbsent(groupName, key -> new RewardCooldown(0));
+        return this.cooldownGroups.computeIfAbsent(groupName, key -> new RewardCooldown(key, 0));
     }
 
     private RewardCooldown getCooldownForDonationOrNull(Donation donation) {
@@ -199,11 +199,17 @@ public class RewardManager {
     }
 
     public static class RewardCooldown {
+        private String groupName;
         private int currentCooldown = 0;
         private int maxCooldown;
 
-        public RewardCooldown(int maxCooldown) {
+        public RewardCooldown(String groupName, int maxCooldown) {
+            this.groupName = groupName;
             this.maxCooldown = maxCooldown;
+        }
+
+        public String getGroupName() {
+            return groupName;
         }
 
         public int getCurrentCooldown() {
