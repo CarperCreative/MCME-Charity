@@ -11,6 +11,11 @@ public class BossBattleAction implements Action {
     }
 
     @Override
+    public String getCooldownGroupName() {
+        return "bossbattle." + bossBattleName;
+    }
+
+    @Override
     public void execute(String donor, String message, String amount) {
         MCMEScripts.getBossBattleManager().startBossBattle(bossBattleName,donor,message,amount);
     }

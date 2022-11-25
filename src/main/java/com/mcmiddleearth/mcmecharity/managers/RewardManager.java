@@ -1,13 +1,23 @@
 package com.mcmiddleearth.mcmecharity.managers;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mcmiddleearth.mcmecharity.CharityPlugin;
 import com.mcmiddleearth.mcmecharity.Donation;
 import com.mcmiddleearth.mcmecharity.actions.Action;
 import com.mcmiddleearth.mcmecharity.actions.ActionCompiler;
+import com.mcmiddleearth.mcmecharity.actions.ScriptAction;
 import com.mcmiddleearth.mcmecharity.incentives.Reward;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 public class RewardManager {
@@ -22,11 +32,13 @@ public class RewardManager {
                                 KEY_DONATION = "donation";
 
     private final JsonParser jsonParser = new JsonParser();
+    private final Map<String, RewardCooldown> cooldownGroups = new HashMap<>();
 
-    private int donationCooldown = 0, maxDonationCooldown = 20; //
+    private final RewardCooldown globalCooldown = new RewardCooldown(20);
 
     public synchronized void updateRewards(String rewardData) {
         registeredRewards.clear();
+
         Gson gson = new Gson();
         JsonElement rewardDataJson =  jsonParser.parse(rewardData);
         JsonArray rewardListJson = rewardDataJson.getAsJsonObject().get("data").getAsJsonArray();
@@ -43,25 +55,49 @@ public class RewardManager {
     }
 
     public synchronized void handleRewards() {
-        if(CharityPlugin.getStreamer()!=null && donationCooldown == 0) {
-            try {
-//Logger.getGlobal().info("Handle rewards: " + donations.size());
-                donations.stream().filter(donation -> !donation.isHandled()).findFirst().ifPresent(donation -> {
-//Logger.getGlobal().info("Donation: " + donation.getName()+" "+donation.getReward()+" "+(donation.getReward()!=null?donation.getReward().getAction():"nullll"));
-                    if (donation.getReward() != null && donation.getReward().getAction() != null) {
-                        Logger.getLogger(RewardManager.class.getSimpleName()).info("Donation reward: " + donation.getName());
-                        donation.getReward().getAction().execute(donation.getName(), donation.getComment(), "" + donation.getAmount());
-                        donation.setHandled(true);
-                        CharityPlugin.setStorage(KEY_DONATION, "" + donation.getId(), true, false);
-                        donationCooldown = maxDonationCooldown;
-                    }
-                });
-            } finally {
-                CharityPlugin.saveStorage();
-            }
+        if (CharityPlugin.getStreamer() == null) {
+            return;
         }
-        donationCooldown = Math.max(0,--donationCooldown);
-        Logger.getLogger(this.getClass().getSimpleName()).info("Donation queue size: "+donations.size()+" - Cooldown: "+donationCooldown);
+
+        for (final Donation donation : this.donations) {
+            if (donation.isHandled() || donation.getReward() == null || donation.getReward().getAction() == null) {
+                continue;
+            }
+
+            final Reward reward = donation.getReward();
+            final Action action = reward.getAction();
+
+            final String cooldownGroupName = action.getCooldownGroupName();
+            RewardCooldown cooldown = cooldownGroupName == null ? null : this.cooldownGroups.get(cooldownGroupName);
+            if (cooldown == null) {
+                cooldown = globalCooldown;
+            }
+
+            if (cooldown.isActive()) {
+                continue;
+            }
+
+            this.giveReward(donation);
+            cooldown.reset();
+            break;
+        }
+
+        CharityPlugin.saveStorage();
+
+        globalCooldown.decrement();
+
+        for (final RewardCooldown cooldown : this.cooldownGroups.values()) {
+            cooldown.decrement();
+        }
+
+        Logger.getLogger(this.getClass().getSimpleName()).info("Donation queue size: " + donations.size() + " - Cooldown: " + globalCooldown.getCurrentCooldown());
+    }
+
+    private void giveReward(Donation donation) {
+        Logger.getLogger(RewardManager.class.getSimpleName()).info("Donation reward: " + donation.getName());
+        donation.getReward().getAction().execute(donation.getName(), donation.getComment(), "" + donation.getAmount());
+        donation.setHandled(true);
+        CharityPlugin.setStorage(KEY_DONATION, "" + donation.getId(), true, false);
     }
 
     public synchronized void updateDonations(String donationData) {
@@ -95,7 +131,52 @@ public class RewardManager {
     }
 
     public void setCooldown(int maxDonationCooldown) {
-        this.maxDonationCooldown = maxDonationCooldown;
-        if(donationCooldown > this.maxDonationCooldown) donationCooldown = this.maxDonationCooldown;
+        globalCooldown.setMaxCooldown(maxDonationCooldown);
+    }
+
+    public void setCooldown(String groupName, int maxDonationCooldown) {
+        this.cooldownGroups.put(groupName, new RewardCooldown(maxDonationCooldown));
+    }
+
+    private static class RewardCooldown {
+        private int currentCooldown = 0;
+        private int maxCooldown;
+
+        public RewardCooldown(int maxCooldown) {
+            this.maxCooldown = maxCooldown;
+        }
+
+        public int getCurrentCooldown() {
+            return currentCooldown;
+        }
+
+        public void setCurrentCooldown(int currentCooldown) {
+            this.currentCooldown = currentCooldown;
+        }
+
+        public int getMaxCooldown() {
+            return maxCooldown;
+        }
+
+        public void setMaxCooldown(int maxCooldown) {
+            this.maxCooldown = maxCooldown;
+            if (currentCooldown > maxCooldown) {
+                currentCooldown = maxCooldown;
+            }
+        }
+
+        public boolean isActive() {
+            return currentCooldown > 0;
+        }
+
+        public void decrement() {
+            if (currentCooldown > 0) {
+                currentCooldown--;
+            }
+        }
+
+        public void reset() {
+            currentCooldown = maxCooldown;
+        }
     }
 }

@@ -20,6 +20,11 @@ public class ScriptAction implements Action {
     }
 
     @Override
+    public String getCooldownGroupName() {
+        return "script." + script;
+    }
+
+    @Override
     public void execute(String donor, String message, String amount) {
         if(CharityPlugin.getStreamer()!=null) {
             List<String> list = new ArrayList<>(Arrays.asList(arguments));
@@ -30,5 +35,9 @@ public class ScriptAction implements Action {
 //Logger.getGlobal().info("" + MCMEScripts.getExternalTriggerManager() + " " + script + " " + name + " " + list);
             MCMEScripts.getExternalTriggerManager().call(script, name, list.toArray(new String[0]));
         }
+    }
+
+    public String getScript() {
+        return this.script;
     }
 }

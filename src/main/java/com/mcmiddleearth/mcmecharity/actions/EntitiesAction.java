@@ -7,6 +7,11 @@ public class EntitiesAction implements Action {
     }
 
     @Override
+    public String getCooldownGroupName() {
+        return null;
+    }
+
+    @Override
     public void execute(String donor, String message, String amount) {
 
     }
