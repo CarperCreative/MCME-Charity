@@ -42,6 +42,11 @@ public class InventoryReplaceAction implements Action, Listener {
     }
 
     @Override
+    public String getCooldownGroupName() {
+        return null;
+    }
+
+    @Override
     public void execute(String donor, String message, String amount) {
         Player streamer = CharityPlugin.getStreamer();
         if(streamer!=null) {

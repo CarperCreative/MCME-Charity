@@ -32,7 +32,7 @@ public class RewardManager {
                                 KEY_DONATION = "donation";
 
     private final JsonParser jsonParser = new JsonParser();
-    private final Map<String, RewardCooldown> scriptCooldowns = new HashMap<>();
+    private final Map<String, RewardCooldown> cooldownGroups = new HashMap<>();
 
     private final RewardCooldown globalCooldown = new RewardCooldown(20);
 
@@ -67,28 +67,18 @@ public class RewardManager {
             final Reward reward = donation.getReward();
             final Action action = reward.getAction();
 
-            if (action instanceof ScriptAction) {
-                final ScriptAction scriptAction = (ScriptAction) action;
-                final String script = scriptAction.getScript();
-
-                final RewardCooldown cooldown = this.scriptCooldowns.get(script);
-                if (cooldown != null) {
-                    if (cooldown.isActive()) {
-                        continue;
-                    }
-
-                    this.giveReward(donation);
-                    cooldown.reset();
-
-                    // End iteration here to prevent running the reward action twice and affecting global cooldown
-                    continue;
-                }
+            final String cooldownGroupName = action.getCooldownGroupName();
+            RewardCooldown cooldown = cooldownGroupName == null ? null : this.cooldownGroups.get(cooldownGroupName);
+            if (cooldown == null) {
+                cooldown = globalCooldown;
             }
 
-            if (globalCooldown.isActive()) break;
+            if (cooldown.isActive()) {
+                continue;
+            }
 
             this.giveReward(donation);
-            globalCooldown.reset();
+            cooldown.reset();
             break;
         }
 
@@ -96,7 +86,7 @@ public class RewardManager {
 
         globalCooldown.decrement();
 
-        for (final RewardCooldown cooldown : this.scriptCooldowns.values()) {
+        for (final RewardCooldown cooldown : this.cooldownGroups.values()) {
             cooldown.decrement();
         }
 
@@ -144,8 +134,8 @@ public class RewardManager {
         globalCooldown.setMaxCooldown(maxDonationCooldown);
     }
 
-    public void setCooldown(String script, int maxDonationCooldown) {
-        this.scriptCooldowns.put(script, new RewardCooldown(maxDonationCooldown));
+    public void setCooldown(String groupName, int maxDonationCooldown) {
+        this.cooldownGroups.put(groupName, new RewardCooldown(maxDonationCooldown));
     }
 
     private static class RewardCooldown {

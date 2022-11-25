@@ -10,6 +10,10 @@ import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
 
 public class BedAction implements Action {
+    @Override
+    public String getCooldownGroupName() {
+        return "bed";
+    }
 
     @Override
     public void execute(String donor, String message, String amount) {

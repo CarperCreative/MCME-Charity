@@ -20,6 +20,11 @@ public class ScriptAction implements Action {
     }
 
     @Override
+    public String getCooldownGroupName() {
+        return "script." + script;
+    }
+
+    @Override
     public void execute(String donor, String message, String amount) {
         if(CharityPlugin.getStreamer()!=null) {
             List<String> list = new ArrayList<>(Arrays.asList(arguments));

@@ -22,6 +22,11 @@ public class ItemRainAction implements Action {
     }
 
     @Override
+    public String getCooldownGroupName() {
+        return null;
+    }
+
+    @Override
     public void execute(String donor, String message, String amount) {
         Player streamer = CharityPlugin.getStreamer();
 //Logger.getGlobal().info("Rain "+item.getType());

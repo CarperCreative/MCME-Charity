@@ -32,10 +32,10 @@ public class CharityCommand implements CommandExecutor {
                         final String script = args[2];
 
                         CharityPlugin.getInstance().getRewardManager().setCooldown(script, cooldown);
-                        sender.sendMessage(ChatColor.AQUA+"[CharityPlugin] Donation reward cooldown set to: " + cooldown + " for script " + script);
+                        sender.sendMessage(ChatColor.AQUA+"[CharityPlugin] Donation reward cooldown set to: " + cooldown + " for cooldown group " + script);
                     } else {
                         CharityPlugin.getInstance().getRewardManager().setCooldown(cooldown);
-                        sender.sendMessage(ChatColor.AQUA+"[CharityPlugin] Donation reward cooldown set to: "+cooldown);
+                        sender.sendMessage(ChatColor.AQUA+"[CharityPlugin] Global donation reward cooldown set to: "+cooldown);
                     }
 
                 }catch (NumberFormatException ex) {
