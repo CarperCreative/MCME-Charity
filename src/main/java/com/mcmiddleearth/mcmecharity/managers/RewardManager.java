@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
-import org.apache.commons.math3.util.Pair;
 
 public class RewardManager {
 
@@ -33,7 +32,7 @@ public class RewardManager {
                                 KEY_DONATION = "donation";
 
     private final JsonParser jsonParser = new JsonParser();
-    private final Map<String, Pair<AtomicInteger, Integer>> scriptCooldowns = new HashMap<>();
+    private final Map<String, RewardCooldown> scriptCooldowns = new HashMap<>();
 
     private int donationCooldown = 0, maxDonationCooldown = 20; //
 
@@ -72,16 +71,14 @@ public class RewardManager {
                 final ScriptAction scriptAction = (ScriptAction) action;
                 final String script = scriptAction.getScript();
 
-                if (this.scriptCooldowns.containsKey(script)) {
-                    final Pair<AtomicInteger, Integer> pair = this.scriptCooldowns.get(script);
-                    final AtomicInteger currentCooldown = pair.getFirst();
-
-                    if (currentCooldown.get() > 0) {
+                final RewardCooldown cooldown = this.scriptCooldowns.get(script);
+                if (cooldown != null) {
+                    if (cooldown.isActive()) {
                         continue;
                     }
 
                     this.giveReward(donation);
-                    currentCooldown.set(pair.getSecond());
+                    cooldown.reset();
 
                     // End iteration here to prevent running the reward action twice and affecting global cooldown
                     continue;
@@ -99,13 +96,8 @@ public class RewardManager {
 
         donationCooldown = Math.max(0,--donationCooldown);
 
-        for (final Pair<AtomicInteger, Integer> pair : this.scriptCooldowns.values()) {
-            final AtomicInteger cooldown = pair.getFirst();
-            if(cooldown.get() <= 0) {
-                continue;
-            }
-
-            cooldown.decrementAndGet();
+        for (final RewardCooldown cooldown : this.scriptCooldowns.values()) {
+            cooldown.decrement();
         }
 
         Logger.getLogger(this.getClass().getSimpleName()).info("Donation queue size: " + donations.size() + " - Cooldown: " + donationCooldown);
@@ -154,6 +146,48 @@ public class RewardManager {
     }
 
     public void setCooldown(String script, int maxDonationCooldown) {
-        this.scriptCooldowns.put(script, Pair.create(new AtomicInteger(), maxDonationCooldown));
+        this.scriptCooldowns.put(script, new RewardCooldown(maxDonationCooldown));
+    }
+
+    private static class RewardCooldown {
+        private int currentCooldown = 0;
+        private int maxCooldown;
+
+        public RewardCooldown(int maxCooldown) {
+            this.maxCooldown = maxCooldown;
+        }
+
+        public int getCurrentCooldown() {
+            return currentCooldown;
+        }
+
+        public void setCurrentCooldown(int currentCooldown) {
+            this.currentCooldown = currentCooldown;
+        }
+
+        public int getMaxCooldown() {
+            return maxCooldown;
+        }
+
+        public void setMaxCooldown(int maxCooldown) {
+            this.maxCooldown = maxCooldown;
+            if (currentCooldown > maxCooldown) {
+                currentCooldown = maxCooldown;
+            }
+        }
+
+        public boolean isActive() {
+            return currentCooldown > 0;
+        }
+
+        public void decrement() {
+            if (currentCooldown > 0) {
+                currentCooldown--;
+            }
+        }
+
+        public void reset() {
+            currentCooldown = maxCooldown;
+        }
     }
 }
