@@ -127,7 +127,7 @@ public class RewardManager {
     private void giveReward(Donation donation) {
         String cooldownGroupName = getCooldownGroupNameForDonationOrNull(donation);
         RewardCooldown cooldown = getCooldownOrNull(cooldownGroupName);
-        Logger.getLogger(RewardManager.class.getSimpleName()).info("Giving donation reward for " + donation.getName() + "." + (cooldown == null ? "" : " New cooldown for group " + cooldownGroupName + ": " + cooldown.getCurrentCooldown()));
+        Logger.getLogger(RewardManager.class.getSimpleName()).info("Giving donation reward " + donation.getReward().getDescription() + " for " + donation.getName() + "." + (cooldown == null ? "" : " New cooldown for group " + cooldownGroupName + ": " + cooldown.getCurrentCooldown()));
         donation.getReward().getAction().execute(donation.getName(), donation.getComment(), "" + donation.getAmount());
         donation.setHandled(true);
         CharityPlugin.setStorage(KEY_DONATION, "" + donation.getId(), true, false);
