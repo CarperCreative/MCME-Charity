@@ -38,6 +38,9 @@ public final class CharityPlugin extends JavaPlugin {
         //private TiltifyConnector tiltifyConnector;
         saveDefaultConfig();
 
+        instance = this;
+        loadStorage();
+
         rewardManager = new RewardManager();
         pollManager = new PollManager();
         challengeManager = new ChallengeManager();
@@ -46,9 +49,6 @@ public final class CharityPlugin extends JavaPlugin {
 
         minecraftUpdater = new MinecraftUpdater(rewardManager, pollManager, challengeManager).runTaskTimer(this,210,100);
         tiltifyUpdater = new TiltifyUpdater(rewardManager, pollManager, challengeManager).runTaskTimerAsynchronously(this,200,100);
-
-        instance = this;
-        loadStorage();
 
         Bukkit.getPluginManager().registerEvents(new PlayerListener(),this);
         Bukkit.getPluginManager().registerEvents(new OneRingEffect(),this);
